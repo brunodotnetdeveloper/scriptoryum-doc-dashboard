@@ -2,13 +2,13 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Dashboard, Upload, File } from 'lucide-react';
+import { LayoutDashboard, Upload, FileText } from 'lucide-react';
 
 const menuItems = [
   {
     name: 'Dashboard',
     path: '/dashboard',
-    icon: Dashboard,
+    icon: LayoutDashboard,
   },
   {
     name: 'Upload',
@@ -18,7 +18,7 @@ const menuItems = [
   {
     name: 'Documentos',
     path: '/documentos',
-    icon: File,
+    icon: FileText,
   },
 ];
 
