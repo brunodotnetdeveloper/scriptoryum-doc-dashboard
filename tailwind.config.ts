@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,12 +62,24 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// Cores personalizadas do Scriptoryum
+				scriptoryum: {
+					'deep-purple': 'rgb(73, 43, 123)',
+					'dark-gray': 'rgb(34, 34, 40)',
+					'medium-gray': 'rgb(85, 85, 95)',
+					'soft-blue': 'rgb(102, 153, 255)',
+					'soft-white': 'rgb(240, 240, 245)',
+					'soft-red': 'rgb(220, 80, 80)'
 				}
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			fontFamily: {
+				'inter': ['Inter', 'system-ui', 'sans-serif'],
 			},
 			keyframes: {
 				'accordion-down': {
