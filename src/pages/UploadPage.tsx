@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { apiService } from '@/services/api';
+import { documentsService } from '@/services';
 import { toast } from '@/hooks/use-toast';
 import { Upload, File, X, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 
@@ -71,7 +71,7 @@ export const UploadPage: React.FC = () => {
 
   const uploadDocument = async (uploadFile: UploadedFile, index: number) => {
     try {
-      const response = await apiService.uploadDocument(uploadFile.file, description);
+      const response = await documentsService.uploadDocument(uploadFile.file, description);
       
       if (response.success) {
         setFiles(prev => prev.map((f, i) => 

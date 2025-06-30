@@ -1,6 +1,8 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { Menu } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -13,7 +15,13 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { LogOut, User } from 'lucide-react';
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  toggleSidebar: () => void;
+  isMobile: boolean;
+  isSidebarOpen: boolean;
+}
+
+export const Header: React.FC<HeaderProps> = ({ toggleSidebar, isMobile, isSidebarOpen }) => {
   const { user, logout } = useAuth();
 
   const getInitials = (name?: string) => {
@@ -27,8 +35,18 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <header className="h-16 bg-scriptoryum-dark-gray border-b border-scriptoryum-medium-gray flex items-center justify-between px-6 sticky top-0 z-50">
+    <header className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between px-4 border-b border-scriptoryum-gray bg-scriptoryum-dark-gray">
       <div className="flex items-center">
+        {(!isSidebarOpen || isMobile) && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="mr-2 text-scriptoryum-soft-white hover:bg-scriptoryum-medium-gray/50"
+            onClick={toggleSidebar}
+          >
+            <Menu className="h-6 w-6" />
+          </Button>
+        )}
         <h1 className="text-2xl font-bold text-scriptoryum-soft-white font-inter">
           Scriptoryum
         </h1>
@@ -43,7 +61,10 @@ export const Header: React.FC = () => {
             <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:bg-scriptoryum-medium-gray/50">
               <Avatar className="h-10 w-10 border-2 border-scriptoryum-medium-gray">
                 <AvatarImage src="/placeholder-avatar.jpg" alt={user?.userName} />
-                <AvatarFallback className="bg-scriptoryum-deep-purple text-scriptoryum-soft-white font-medium">
+                <AvatarFallback className={cn(
+                  "bg-scriptoryum-deep-purple text-scriptoryum-soft-white font-medium",
+                  !user?.userName && "bg-scriptoryum-medium-gray"
+                )}>
                   {getInitials(user?.userName)}
                 </AvatarFallback>
               </Avatar>

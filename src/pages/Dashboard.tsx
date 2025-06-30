@@ -1,9 +1,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { apiService } from '@/services/api';
+import { accountService, documentsService } from '@/services';
 import { useAuth } from '@/contexts/AuthContext';
 import { File, Upload, User, FileText } from 'lucide-react';
+import { Document, UserDocumentsResponse } from '@/types/api';
 
 interface DashboardStats {
   totalDocuments: number;
@@ -20,27 +21,30 @@ export const Dashboard: React.FC = () => {
     processingDocuments: 0,
     completedDocuments: 0,
   });
-  const [recentDocuments, setRecentDocuments] = useState<any[]>([]);
+  const [recentDocuments, setRecentDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const loadDashboardData = async () => {
       try {
-        const documents = await apiService.getUserDocuments();
+        const { documents }: UserDocumentsResponse = await accountService.getUserDocuments();
         
         // Simular estatísticas baseadas nos documentos (já que a API não retorna essas informações)
         const totalDocuments = documents.length;
         const currentMonth = new Date().getMonth();
         const documentsThisMonth = documents.filter((doc: any) => {
-          const docDate = new Date(doc.uploadDate || Date.now());
+          const docDate = new Date(doc.uploadedAt || Date.now());
           return docDate.getMonth() === currentMonth;
         }).length;
         
+        const processingDocuments = documents.filter(doc => doc.status === 'Processing').length;
+        const completedDocuments = documents.filter(doc => doc.status === 'Processed').length;
+
         setStats({
           totalDocuments,
           documentsThisMonth,
-          processingDocuments: Math.floor(totalDocuments * 0.1), // 10% em processamento
-          completedDocuments: Math.floor(totalDocuments * 0.9), // 90% completos
+          processingDocuments,
+          completedDocuments,
         });
         
         setRecentDocuments(documents.slice(0, 5)); // Últimos 5 documentos
@@ -168,22 +172,22 @@ export const Dashboard: React.FC = () => {
                     <File className="h-4 w-4 text-scriptoryum-soft-blue" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-scriptoryum-soft-white truncate">
-                        {doc.fileName || `Documento ${doc.id}`}
+                        {doc.originalFileName || `Documento ${doc.id}`}
                       </p>
                       <p className="text-xs text-scriptoryum-soft-white/50">
-                        {doc.uploadDate ? formatDate(doc.uploadDate) : 'Data não disponível'}
+                        {doc.uploadedAt ? formatDate(doc.uploadedAt) : 'Data não disponível'}
                       </p>
                     </div>
                     <div className="flex-shrink-0">
                       <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                        doc.status === 'completed' 
+                        doc.status === 'Processed' 
                           ? 'bg-green-100 text-green-800' 
-                          : doc.status === 'processing'
+                          : doc.status === 'Processing'
                           ? 'bg-yellow-100 text-yellow-800'
                           : 'bg-red-100 text-red-800'
                       }`}>
-                        {doc.status === 'completed' ? 'Completo' : 
-                         doc.status === 'processing' ? 'Processando' : 'Erro'}
+                        {doc.status === 'Processed' ? 'Completo' : 
+                         doc.status === 'Processing' ? 'Processando' : 'Erro'}
                       </span>
                     </div>
                   </div>

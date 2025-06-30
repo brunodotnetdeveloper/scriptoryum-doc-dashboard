@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserInfoDto, LoginDto, RegisterDto } from '@/types/api';
-import { apiService } from '@/services/api';
+import { authService } from '@/services';
 import { toast } from '@/hooks/use-toast';
 
 interface AuthContextType {
@@ -37,7 +37,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (token && savedUser) {
         try {
-          const isValid = await apiService.validateToken();
+          const isValid = await authService.validateToken();
           if (isValid) {
             setUser(JSON.parse(savedUser));
           } else {
@@ -60,7 +60,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const login = async (credentials: LoginDto) => {
     try {
       setIsLoading(true);
-      const response = await apiService.login(credentials);
+      const response = await authService.login(credentials);
       
       if (response.success && response.user) {
         setUser(response.user);
@@ -86,7 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const register = async (userData: RegisterDto) => {
     try {
       setIsLoading(true);
-      const response = await apiService.register(userData);
+      const response = await authService.register(userData);
       
       if (response.success && response.user) {
         setUser(response.user);
@@ -110,7 +110,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const logout = () => {
-    apiService.logout();
+    authService.logout();
     setUser(null);
     toast({
       title: "Logout realizado",
@@ -120,7 +120,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refreshUser = async () => {
     try {
-      const userData = await apiService.getMe();
+      const userData = await authService.getMe();
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
     } catch (error) {

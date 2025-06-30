@@ -4,25 +4,21 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { apiService } from '@/services/api';
+import { accountService, documentsService } from '@/services';
 import { toast } from '@/hooks/use-toast';
 import { File, Search, Download, Eye, Trash2, Loader2 } from 'lucide-react';
+import { Document } from '@/types/api';
+import { DocumentDetailsModal } from '@/components/DocumentDetailsModal';
 
-interface Document {
-  id: number;
-  fileName: string;
-  description?: string;
-  uploadDate: string;
-  size: number;
-  status: 'processing' | 'completed' | 'error';
-  documentId?: number;
-}
+
 
 export const DocumentsPage: React.FC = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [filteredDocuments, setFilteredDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedDocumentId, setSelectedDocumentId] = useState<number | null>(null);
 
   useEffect(() => {
     loadDocuments();
@@ -31,7 +27,7 @@ export const DocumentsPage: React.FC = () => {
   useEffect(() => {
     // Filtrar documentos baseado no termo de busca
     const filtered = documents.filter(doc =>
-      doc.fileName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      doc.originalFileName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (doc.description && doc.description.toLowerCase().includes(searchTerm.toLowerCase()))
     );
     setFilteredDocuments(filtered);
@@ -40,17 +36,20 @@ export const DocumentsPage: React.FC = () => {
   const loadDocuments = async () => {
     try {
       setIsLoading(true);
-      const data = await apiService.getUserDocuments();
+      const data = await accountService.getUserDocuments();
       
-      // Simular estrutura de documentos já que a API não retorna detalhes completos
-      const processedDocuments: Document[] = data.map((doc: any, index: number) => ({
-        id: doc.id || index + 1,
-        fileName: doc.fileName || `Documento_${index + 1}.pdf`,
+      const processedDocuments: Document[] = data.documents.map((doc: any) => ({
+        id: doc.id,
+        originalFileName: doc.originalFileName,
         description: doc.description,
-        uploadDate: doc.uploadDate || new Date().toISOString(),
-        size: doc.size || Math.floor(Math.random() * 5000000) + 100000, // Tamanho simulado
-        status: ['completed', 'processing', 'error'][Math.floor(Math.random() * 3)] as any,
-        documentId: doc.documentId,
+        fileType: doc.fileType,
+        fileName: doc.fileName,
+        storagePath: doc.storagePath,
+        fileSize: doc.fileSize,
+        status: doc.status,
+        uploadedAt: doc.uploadedAt,
+        uploadedByUserId: doc.uploadedByUserId,
+
       }));
       
       setDocuments(processedDocuments);
@@ -83,42 +82,93 @@ export const DocumentsPage: React.FC = () => {
     });
   };
 
-  const getStatusBadge = (status: Document['status']) => {
+  const getStatusBadge = (status: string) => {
     const statusConfig = {
-      completed: {
-        label: 'Completo',
+      Processed: {
+        label: 'Processado',
         className: 'bg-green-100 text-green-800 hover:bg-green-200',
       },
-      processing: {
+      Processing: {
         label: 'Processando',
         className: 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200',
       },
-      error: {
-        label: 'Erro',
+      Uploaded: {
+        label: 'Carregado',
+        className: 'bg-blue-100 text-blue-800 hover:bg-blue-200',
+      },
+      Queued: {
+        label: 'Na Fila',
+        className: 'bg-purple-110 text-purple-800 hover:bg-purple-200',
+      },
+      ExtractingText: {
+        label: 'Extraindo Texto',
+        className: 'bg-orange-100 text-orange-800 hover:bg-orange-200',
+      },
+      AnalyzingContent: {
+        label: 'Analisando Conteúdo',
+        className: 'bg-indigo-100 text-indigo-800 hover:bg-indigo-200',
+      },
+      Failed: {
+        label: 'Falha',
         className: 'bg-red-100 text-red-800 hover:bg-red-200',
+      },
+      TextExtractionFailed: {
+        label: 'Falha Extração Texto',
+        className: 'bg-red-200 text-red-800 hover:bg-red-300',
+      },
+      ContentAnalysisFailed: {
+        label: 'Falha Análise Conteúdo',
+        className: 'bg-red-300 text-red-800 hover:bg-red-400',
+      },
+      Cancelled: {
+        label: 'Cancelado',
+        className: 'bg-gray-100 text-gray-800 hover:bg-gray-200',
       },
     };
 
+    const config = statusConfig[status as keyof typeof statusConfig];
+
+    if (!config) {
+      console.warn(`Unknown document status: ${status}`);
+      return (
+        <Badge className="bg-gray-500 text-white hover:bg-gray-600">
+          Status Desconhecido
+        </Badge>
+      );
+    }
+
     return (
-      <Badge className={statusConfig[status].className}>
-        {statusConfig[status].label}
+      <Badge className={config.className}>
+        {config.label}
       </Badge>
     );
   };
 
+  const fetchDocumentDetails = async (id: number) => {
+    try {
+      const response = await documentsService.getDocumentDetails(id);
+      return response;
+    } catch (error) {
+      console.error('Error fetching document details:', error);
+      toast({
+        title: "Erro ao carregar detalhes",
+        description: "Não foi possível carregar os detalhes do documento.",
+        variant: "destructive",
+      });
+      return null;
+    }
+  };
+
   const handleViewDocument = (document: Document) => {
-    // Placeholder para visualização de documento
-    toast({
-      title: "Visualizar documento",
-      description: `Abrindo ${document.fileName}...`,
-    });
+    setSelectedDocumentId(document.id);
+    setIsModalOpen(true);
   };
 
   const handleDownloadDocument = (document: Document) => {
     // Placeholder para download de documento
     toast({
       title: "Download iniciado",
-      description: `Baixando ${document.fileName}...`,
+      description: `Baixando ${document.originalFileName}...`,
     });
   };
 
@@ -126,7 +176,7 @@ export const DocumentsPage: React.FC = () => {
     // Placeholder para exclusão de documento
     toast({
       title: "Documento excluído",
-      description: `${document.fileName} foi removido.`,
+      description: `${document.originalFileName} foi removido.`
     });
     
     // Remover da lista local
@@ -149,7 +199,7 @@ export const DocumentsPage: React.FC = () => {
             {filteredDocuments.length} documento{filteredDocuments.length !== 1 ? 's' : ''}
           </p>
           <p className="text-sm text-scriptoryum-soft-white/50">
-            {documents.filter(d => d.status === 'completed').length} completo{documents.filter(d => d.status === 'completed').length !== 1 ? 's' : ''}
+            {documents.filter(d => d.status === 'Processed').length} processado{documents.filter(d => d.status === 'Processed').length !== 1 ? 's' : ''}
           </p>
         </div>
       </div>
@@ -198,7 +248,7 @@ export const DocumentsPage: React.FC = () => {
                   <div className="flex-1 min-w-0 space-y-1">
                     <div className="flex items-center space-x-2">
                       <h3 className="text-sm font-medium text-scriptoryum-soft-white truncate">
-                        {document.fileName}
+                        {document.originalFileName}
                       </h3>
                       {getStatusBadge(document.status)}
                     </div>
@@ -208,15 +258,22 @@ export const DocumentsPage: React.FC = () => {
                         {document.description}
                       </p>
                     )}
+
+              <DocumentDetailsModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                documentId={selectedDocumentId}
+                fetchDetails={fetchDocumentDetails}
+              />
                     
                     <div className="flex items-center space-x-4 text-xs text-scriptoryum-soft-white/50">
-                      <span>{formatFileSize(document.size)}</span>
+                      <span>{formatFileSize(document.fileSize)}</span>
                       <span>•</span>
-                      <span>{formatDate(document.uploadDate)}</span>
-                      {document.documentId && (
+                      <span>{formatDate(document.uploadedAt)}</span>
+                      {document.id && (
                         <>
                           <span>•</span>
-                          <span>ID: {document.documentId}</span>
+                          <span>ID: {document.id}</span>
                         </>
                       )}
                     </div>
@@ -240,7 +297,7 @@ export const DocumentsPage: React.FC = () => {
                       onClick={() => handleDownloadDocument(document)}
                       className="text-scriptoryum-soft-white/70 hover:text-scriptoryum-soft-blue hover:bg-scriptoryum-soft-blue/10"
                       title="Download"
-                      disabled={document.status !== 'completed'}
+                      disabled={document.status !== 'Processed'}
                     >
                       <Download className="h-4 w-4" />
                     </Button>
