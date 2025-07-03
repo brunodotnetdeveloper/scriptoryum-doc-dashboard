@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { accountService, documentsService } from '@/services';
 import { toast } from '@/hooks/use-toast';
-import { File, Search, Download, Eye, Trash2, Loader2 } from 'lucide-react';
+import { File, Search, Download, Eye, Trash2, Loader2, RefreshCw } from 'lucide-react';
 import { Document } from '@/types/api';
 import { DocumentDetailsModal } from '@/components/DocumentDetailsModal';
 
@@ -193,14 +193,25 @@ export const DocumentsPage: React.FC = () => {
             Gerencie seus documentos enviados para análise
           </p>
         </div>
-        
-        <div className="text-right">
-          <p className="text-scriptoryum-soft-white font-medium">
-            {filteredDocuments.length} documento{filteredDocuments.length !== 1 ? 's' : ''}
-          </p>
-          <p className="text-sm text-scriptoryum-soft-white/50">
-            {documents.filter(d => d.status === 'Processed').length} processado{documents.filter(d => d.status === 'Processed').length !== 1 ? 's' : ''}
-          </p>
+        <div className="flex items-center space-x-4">
+          <div className="text-right">
+            <p className="text-scriptoryum-soft-white font-medium">
+              {filteredDocuments.length} documento{filteredDocuments.length !== 1 ? 's' : ''}
+            </p>
+            <p className="text-sm text-scriptoryum-soft-white/50">
+              {documents.filter(d => d.status === 'Processed').length} processado{documents.filter(d => d.status === 'Processed').length !== 1 ? 's' : ''}
+            </p>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={loadDocuments}
+            className="text-scriptoryum-soft-white/70 hover:text-scriptoryum-soft-blue hover:bg-scriptoryum-soft-blue/10"
+            title="Recarregar"
+            aria-label="Recarregar documentos"
+          >
+            <RefreshCw className="h-5 w-5" />
+          </Button>
         </div>
       </div>
 
