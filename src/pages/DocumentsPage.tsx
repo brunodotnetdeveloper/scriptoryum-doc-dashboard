@@ -98,7 +98,7 @@ export const DocumentsPage: React.FC = () => {
       },
       Queued: {
         label: 'Na Fila',
-        className: 'bg-purple-110 text-purple-800 hover:bg-purple-200',
+        className: 'bg-purple-100 text-purple-800 hover:bg-purple-200',
       },
       ExtractingText: {
         label: 'Extraindo Texto',
@@ -123,6 +123,22 @@ export const DocumentsPage: React.FC = () => {
       Cancelled: {
         label: 'Cancelado',
         className: 'bg-gray-100 text-gray-800 hover:bg-gray-200',
+      },
+      PartiallyProcessed: {
+        label: 'Parcialmente Processado',
+        className: 'bg-yellow-200 text-yellow-900 hover:bg-yellow-300',
+      },
+      EntitiesExtractionFailed: {
+        label: 'Falha Extração Entidades',
+        className: 'bg-red-200 text-red-800 hover:bg-red-300',
+      },
+      RisksAnalysisFailed: {
+        label: 'Falha Análise Riscos',
+        className: 'bg-red-200 text-red-800 hover:bg-red-300',
+      },
+      InsightsGenerationFailed: {
+        label: 'Falha Geração Insights',
+        className: 'bg-red-200 text-red-800 hover:bg-red-300',
       },
     };
 

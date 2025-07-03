@@ -37,7 +37,7 @@ export const Dashboard: React.FC = () => {
           return docDate.getMonth() === currentMonth;
         }).length;
         
-        const processingDocuments = documents.filter(doc => doc.status === 'Processing').length;
+        const processingDocuments = documents.filter(doc => doc.status === 'ExtractingText').length;
         const completedDocuments = documents.filter(doc => doc.status === 'Processed').length;
 
         setStats({
@@ -62,6 +62,40 @@ export const Dashboard: React.FC = () => {
     return new Date(dateString).toLocaleDateString('pt-BR');
   };
 
+  const getStatusText = (status: string) => {
+    switch (status) {
+      case 'Processed':
+        return 'Processado';
+      case 'Processing':
+        return 'Processando';
+      case 'Uploaded':
+        return 'Carregado';
+      case 'Queued':
+        return 'Na Fila';
+      case 'ExtractingText':
+        return 'Extraindo Texto';
+      case 'AnalyzingContent':
+        return 'Analisando Conteúdo';
+      case 'Failed':
+        return 'Falha';
+      case 'TextExtractionFailed':
+        return 'Falha Extração Texto';
+      case 'ContentAnalysisFailed':
+        return 'Falha Análise Conteúdo';
+      case 'Cancelled':
+        return 'Cancelado';
+      case 'PartiallyProcessed':
+        return 'Parcialmente Processado';
+      case 'EntitiesExtractionFailed':
+        return 'Falha Extração Entidades';
+      case 'RisksAnalysisFailed':
+        return 'Falha Análise Riscos';
+      case 'InsightsGenerationFailed':
+        return 'Falha Geração Insights';
+      default:
+        return 'Desconhecido';
+    }
+  };
   return (
     <div className="space-y-6">
       {/* Header do Dashboard */}
@@ -182,12 +216,12 @@ export const Dashboard: React.FC = () => {
                       <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                         doc.status === 'Processed' 
                           ? 'bg-green-100 text-green-800' 
-                          : doc.status === 'Processing'
+                          : doc.status === 'ExtractingText'
                           ? 'bg-yellow-100 text-yellow-800'
                           : 'bg-red-100 text-red-800'
                       }`}>
                         {doc.status === 'Processed' ? 'Completo' : 
-                         doc.status === 'Processing' ? 'Processando' : 'Erro'}
+                         doc.status === 'ExtractingText' ? 'Extraindo Texto' : 'Erro'}
                       </span>
                     </div>
                   </div>

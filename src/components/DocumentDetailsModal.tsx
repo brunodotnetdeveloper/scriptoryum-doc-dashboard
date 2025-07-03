@@ -65,7 +65,7 @@ export const DocumentDetailsModal: React.FC<DocumentDetailsModalProps> = ({
                 <Brain className="mr-2 h-4 w-4" /> Analisar com Escriba
               </Button>
             )}
-            {(details?.status === 'Processed' || details?.status === 'ContentAnalysisFailed') && !isLoading && (
+            {(details?.status === 'Processed' || details?.status === 'ContentAnalysisFailed' || details?.status === 'PartiallyProcessed' || details?.status === 'EntitiesExtractionFailed' || details?.status === 'RisksAnalysisFailed' || details?.status === 'InsightsGenerationFailed') && !isLoading && (
               <Button
                 variant="outline"
                 className="border-scriptoryum-medium-gray text-scriptoryum-soft-white hover:bg-scriptoryum-medium-gray"
@@ -92,7 +92,7 @@ export const DocumentDetailsModal: React.FC<DocumentDetailsModalProps> = ({
                 Cancelar Processamento
               </Button>
             )}
-            {details?.status !== 'Queued' && details?.status !== 'Processing' && !isLoading && (
+            {details?.status !== 'Queued' && details?.status !== 'Processing' && details?.status !== 'ExtractingText' && details?.status !== 'AnalyzingContent' && !isLoading && (
               <Button
                 variant="destructive"
                 onClick={() => console.log('Delete Document')}

@@ -48,7 +48,20 @@ export interface UploadDocumentResponseDto {
 
 // Add other API related types here
 
-export type DocumentStatus = 'Uploaded' | 'Queued' | 'ExtractingText' | 'AnalyzingContent' | 'Processed' | 'Failed' | 'TextExtractionFailed' | 'ContentAnalysisFailed' | 'Cancelled' | 'Processing';
+export type DocumentStatus =
+  | 'Uploaded'
+  | 'Queued'
+  | 'ExtractingText'
+  | 'AnalyzingContent'
+  | 'Processed'
+  | 'TextExtractionFailed'
+  | 'ContentAnalysisFailed'
+  | 'Failed'
+  | 'Cancelled'
+  | 'PartiallyProcessed'
+  | 'EntitiesExtractionFailed'
+  | 'RisksAnalysisFailed'
+  | 'InsightsGenerationFailed';
 
 export interface Document {
   id: number;
