@@ -51,7 +51,7 @@ export const Header: React.FC<HeaderProps> = ({ toggleSidebar, isMobile, isSideb
           Scriptoryum
         </h1>
         <div className="ml-3 px-2 py-1 bg-scriptoryum-deep-purple/20 rounded-md">
-          <span className="text-xs text-scriptoryum-soft-blue font-medium">AI Document Analysis</span>
+          <span className="text-xs text-scriptoryum-soft-blue font-medium">Análise de Documentos com I.A</span>
         </div>
       </div>
 
