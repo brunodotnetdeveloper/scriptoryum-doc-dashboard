@@ -216,12 +216,11 @@ export const Dashboard: React.FC = () => {
                       <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                         doc.status === 'Processed' 
                           ? 'bg-green-100 text-green-800' 
-                          : doc.status === 'ExtractingText'
+                          : doc.status === 'ExtractingText' || doc.status === 'Queued' || doc.status === 'AnalyzingContent' || doc.status === 'Uploaded'
                           ? 'bg-yellow-100 text-yellow-800'
                           : 'bg-red-100 text-red-800'
                       }`}>
-                        {doc.status === 'Processed' ? 'Completo' : 
-                         doc.status === 'ExtractingText' ? 'Extraindo Texto' : 'Erro'}
+                        {getStatusText(doc.status)}
                       </span>
                     </div>
                   </div>
