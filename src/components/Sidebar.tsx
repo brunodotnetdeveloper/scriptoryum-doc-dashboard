@@ -17,7 +17,7 @@ const menuItems = [
   },
   {
     name: 'Documentos',
-    path: '/documentos',
+    path: '/documents',
     icon: FileText,
   },
 ];

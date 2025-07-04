@@ -65,9 +65,7 @@ export const Dashboard: React.FC = () => {
   const getStatusText = (status: string) => {
     switch (status) {
       case 'Processed':
-        return 'Processado';
-      case 'Processing':
-        return 'Processando';
+        return 'Texto Extraído';
       case 'Uploaded':
         return 'Carregado';
       case 'Queued':
@@ -85,7 +83,7 @@ export const Dashboard: React.FC = () => {
       case 'Cancelled':
         return 'Cancelado';
       case 'PartiallyProcessed':
-        return 'Parcialmente Processado';
+        return 'Parcialmente Analizado';
       case 'EntitiesExtractionFailed':
         return 'Falha Extração Entidades';
       case 'RisksAnalysisFailed':

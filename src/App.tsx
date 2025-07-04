@@ -96,7 +96,7 @@ const AppRoutes = () => {
         } 
       />
       <Route 
-        path="/documentos" 
+        path="/documents" 
         element={
           <ProtectedRoute>
             <DocumentsPage />

@@ -85,13 +85,10 @@ export const DocumentsPage: React.FC = () => {
   const getStatusBadge = (status: string) => {
     const statusConfig = {
       Processed: {
-        label: 'Processado',
+        label: 'Texto extraído',
         className: 'bg-green-100 text-green-800 hover:bg-green-200',
       },
-      Processing: {
-        label: 'Processando',
-        className: 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200',
-      },
+      Processing: undefined,
       Uploaded: {
         label: 'Carregado',
         className: 'bg-blue-100 text-blue-800 hover:bg-blue-200',
