@@ -183,12 +183,7 @@ export const DocumentsPage: React.FC = () => {
   const handleDownloadDocument = async (document: any) => {
     try {
       const url = await documentsService.getDocumentDownloadUrl(document.id);
-      const link = window.document.createElement('a');
-      link.href = url;
-      link.download = document.originalFileName || document.fileName || 'documento';
-      window.document.body.appendChild(link);
-      link.click();
-      window.document.body.removeChild(link);
+      window.open(url, '_blank');
       toast({
         title: "Download iniciado",
         description: `Baixando ${document.originalFileName}...`,
