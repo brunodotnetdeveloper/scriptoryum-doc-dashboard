@@ -14,6 +14,19 @@ class DocumentsService extends BaseService {
         return this.handleResponse<any>(response);
     }
 
+    async getDocumentDownloadUrl(id: number): Promise<string> {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch(`${API_BASE_URL}/api/documents/${id}/download-url`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                ...(token && { 'Authorization': `Bearer ${token}` }),
+            },
+        });
+        const data = await this.handleResponse<any>(response);
+        return data.url;
+    }
+
     async uploadDocument(file: File, description?: string): Promise<UploadDocumentResponseDto> {
         const formData = new FormData();
         formData.append('File', file);

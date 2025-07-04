@@ -6,16 +6,18 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, Brain, Trash2, RefreshCcw } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
+import { Download } from 'lucide-react';
 
 interface DocumentDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
   documentId: number | null;
   fetchDetails: (id: number) => Promise<DocumentDetails | null>;
+  onDownloadDocument
 }
 
 export const DocumentDetailsModal: React.FC<DocumentDetailsModalProps> = ({
-  isOpen, onClose, documentId, fetchDetails
+  isOpen, onClose, documentId, fetchDetails, onDownloadDocument
 }) => {
   const [details, setDetails] = React.useState<DocumentDetails | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
@@ -56,6 +58,15 @@ export const DocumentDetailsModal: React.FC<DocumentDetailsModalProps> = ({
             Informações detalhadas sobre o documento e sua análise.
           </DialogDescription>
           <div className="flex flex-row gap-2 mt-4">
+            {details && (
+              <Button
+                variant="secondary"
+                className="bg-scriptoryum-soft-blue text-scriptoryum-dark-gray hover:bg-scriptoryum-soft-blue/80"
+                onClick={() => onDownloadDocument && onDownloadDocument(details)}
+              >
+                <Download className="mr-2 h-4 w-4" /> Baixar Documento
+              </Button>
+            )}
             {details?.status === 'Processed' && !isLoading && (
               <Button
                 variant="secondary"

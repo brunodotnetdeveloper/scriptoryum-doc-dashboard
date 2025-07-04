@@ -180,12 +180,26 @@ export const DocumentsPage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleDownloadDocument = (document: Document) => {
-    // Placeholder para download de documento
-    toast({
-      title: "Download iniciado",
-      description: `Baixando ${document.originalFileName}...`,
-    });
+  const handleDownloadDocument = async (document: any) => {
+    try {
+      const url = await documentsService.getDocumentDownloadUrl(document.id);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = document.originalFileName || document.fileName || 'documento';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast({
+        title: "Download iniciado",
+        description: `Baixando ${document.originalFileName}...`,
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao baixar documento",
+        description: error instanceof Error ? error.message : 'Erro desconhecido',
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDeleteDocument = (document: Document) => {
@@ -291,6 +305,7 @@ export const DocumentsPage: React.FC = () => {
                 onClose={() => setIsModalOpen(false)}
                 documentId={selectedDocumentId}
                 fetchDetails={fetchDocumentDetails}
+                onDownloadDocument={handleDownloadDocument}
               />
                     
                     <div className="flex items-center space-x-4 text-xs text-scriptoryum-soft-white/50">
