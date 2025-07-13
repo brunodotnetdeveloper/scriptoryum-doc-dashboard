@@ -21,10 +21,10 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-scriptoryum-dark-gray flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-scriptoryum-soft-blue mx-auto mb-4" />
-          <p className="text-scriptoryum-soft-white">Carregando...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-foreground">Carregando...</p>
         </div>
       </div>
     );
@@ -43,10 +43,10 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-scriptoryum-dark-gray flex items-center justify-center">
+      <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="h-8 w-8 animate-spin text-scriptoryum-soft-blue mx-auto mb-4" />
-          <p className="text-scriptoryum-soft-white">Carregando...</p>
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-foreground">Carregando...</p>
         </div>
       </div>
     );

@@ -86,56 +86,56 @@ export const DocumentsPage: React.FC = () => {
     const statusConfig = {
       Processed: {
         label: 'Texto extraído',
-        className: 'bg-green-100 text-green-800 hover:bg-green-200',
+        className: 'bg-success/10 text-success border-success/20',
       },
       Processing: undefined,
       Uploaded: {
         label: 'Carregado',
-        className: 'bg-blue-100 text-blue-800 hover:bg-blue-200',
+        className: 'bg-info/10 text-info border-info/20',
       },
       Queued: {
         label: 'Na Fila',
-        className: 'bg-purple-100 text-purple-800 hover:bg-purple-200',
+        className: 'bg-primary/10 text-primary border-primary/20',
       },
       ExtractingText: {
         label: 'Extraindo Texto',
-        className: 'bg-orange-100 text-orange-800 hover:bg-orange-200',
+        className: 'bg-warning/10 text-warning border-warning/20',
       },
       AnalyzingContent: {
         label: 'Analisando Conteúdo',
-        className: 'bg-indigo-100 text-indigo-800 hover:bg-indigo-200',
+        className: 'bg-primary/10 text-primary border-primary/20',
       },
       Failed: {
         label: 'Falha',
-        className: 'bg-red-100 text-red-800 hover:bg-red-200',
+        className: 'bg-destructive/10 text-destructive border-destructive/20',
       },
       TextExtractionFailed: {
         label: 'Falha Extração Texto',
-        className: 'bg-red-200 text-red-800 hover:bg-red-300',
+        className: 'bg-destructive/10 text-destructive border-destructive/20',
       },
       ContentAnalysisFailed: {
         label: 'Falha Análise Conteúdo',
-        className: 'bg-red-300 text-red-800 hover:bg-red-400',
+        className: 'bg-destructive/10 text-destructive border-destructive/20',
       },
       Cancelled: {
         label: 'Cancelado',
-        className: 'bg-gray-100 text-gray-800 hover:bg-gray-200',
+        className: 'bg-muted text-muted-foreground border-border',
       },
       PartiallyProcessed: {
         label: 'Parcialmente Processado',
-        className: 'bg-yellow-200 text-yellow-900 hover:bg-yellow-300',
+        className: 'bg-warning/10 text-warning border-warning/20',
       },
       EntitiesExtractionFailed: {
         label: 'Falha Extração Entidades',
-        className: 'bg-red-200 text-red-800 hover:bg-red-300',
+        className: 'bg-destructive/10 text-destructive border-destructive/20',
       },
       RisksAnalysisFailed: {
         label: 'Falha Análise Riscos',
-        className: 'bg-red-200 text-red-800 hover:bg-red-300',
+        className: 'bg-destructive/10 text-destructive border-destructive/20',
       },
       InsightsGenerationFailed: {
         label: 'Falha Geração Insights',
-        className: 'bg-red-200 text-red-800 hover:bg-red-300',
+        className: 'bg-destructive/10 text-destructive border-destructive/20',
       },
     };
 
@@ -144,7 +144,7 @@ export const DocumentsPage: React.FC = () => {
     if (!config) {
       console.warn(`Unknown document status: ${status}`);
       return (
-        <Badge className="bg-gray-500 text-white hover:bg-gray-600">
+        <Badge className="bg-muted text-muted-foreground border-border">
           Status Desconhecido
         </Badge>
       );
@@ -210,17 +210,17 @@ export const DocumentsPage: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-scriptoryum-soft-white">Documentos</h1>
-          <p className="text-scriptoryum-soft-white/70 mt-1">
+          <h1 className="text-3xl font-bold text-foreground">Documentos</h1>
+          <p className="text-muted-foreground mt-1">
             Gerencie seus documentos enviados para análise
           </p>
         </div>
         <div className="flex items-center space-x-4">
           <div className="text-right">
-            <p className="text-scriptoryum-soft-white font-medium">
+            <p className="text-foreground font-medium">
               {filteredDocuments.length} documento{filteredDocuments.length !== 1 ? 's' : ''}
             </p>
-            <p className="text-sm text-scriptoryum-soft-white/50">
+            <p className="text-sm text-muted-foreground">
               {documents.filter(d => d.status === 'Processed').length} processado{documents.filter(d => d.status === 'Processed').length !== 1 ? 's' : ''}
             </p>
           </div>
@@ -228,7 +228,7 @@ export const DocumentsPage: React.FC = () => {
             variant="ghost"
             size="sm"
             onClick={loadDocuments}
-            className="text-scriptoryum-soft-white/70 hover:text-scriptoryum-soft-blue hover:bg-scriptoryum-soft-blue/10"
+            className="text-muted-foreground hover:text-primary hover:bg-primary/10"
             title="Recarregar"
             aria-label="Recarregar documentos"
           >
@@ -238,56 +238,56 @@ export const DocumentsPage: React.FC = () => {
       </div>
 
       {/* Barra de Busca */}
-      <Card className="bg-scriptoryum-dark-gray border-scriptoryum-medium-gray">
+      <Card className="bg-card border-border">
         <CardContent className="pt-6">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-scriptoryum-soft-white/50" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Buscar documentos..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-scriptoryum-medium-gray/20 border-scriptoryum-medium-gray text-scriptoryum-soft-white placeholder:text-scriptoryum-soft-white/50 focus:border-scriptoryum-soft-blue"
+              className="pl-10 bg-input border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
             />
           </div>
         </CardContent>
       </Card>
 
       {/* Lista de Documentos */}
-      <Card className="bg-scriptoryum-dark-gray border-scriptoryum-medium-gray">
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-scriptoryum-soft-white">Seus Documentos</CardTitle>
-          <CardDescription className="text-scriptoryum-soft-white/70">
+          <CardTitle className="text-card-foreground">Seus Documentos</CardTitle>
+          <CardDescription className="text-muted-foreground">
             Lista de todos os documentos enviados
           </CardDescription>
         </CardHeader>
         <CardContent>
           {isLoading ? (
             <div className="flex items-center justify-center py-12">
-              <Loader2 className="h-8 w-8 animate-spin text-scriptoryum-soft-blue" />
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
           ) : filteredDocuments.length > 0 ? (
             <div className="space-y-4">
               {filteredDocuments.map((document) => (
                 <div
                   key={document.id}
-                  className="flex items-center space-x-4 p-4 bg-scriptoryum-medium-gray/10 rounded-lg hover:bg-scriptoryum-medium-gray/20 transition-colors"
+                  className="flex items-center space-x-4 p-4 bg-muted/50 rounded-lg hover:bg-accent/50 transition-colors border border-border/50"
                 >
                   {/* Ícone do arquivo */}
                   <div className="flex-shrink-0">
-                    <File className="h-8 w-8 text-scriptoryum-soft-blue" />
+                    <File className="h-8 w-8 text-primary" />
                   </div>
 
                   {/* Informações do documento */}
                   <div className="flex-1 min-w-0 space-y-1">
                     <div className="flex items-center space-x-2">
-                      <h3 className="text-sm font-medium text-scriptoryum-soft-white truncate">
+                      <h3 className="text-sm font-medium text-foreground truncate">
                         {document.originalFileName}
                       </h3>
                       {getStatusBadge(document.status)}
                     </div>
                     
                     {document.description && (
-                      <p className="text-xs text-scriptoryum-soft-white/70 truncate">
+                      <p className="text-xs text-muted-foreground truncate">
                         {document.description}
                       </p>
                     )}
@@ -300,14 +300,14 @@ export const DocumentsPage: React.FC = () => {
                 onDownloadDocument={handleDownloadDocument}
               />
                     
-                    <div className="flex items-center space-x-4 text-xs text-scriptoryum-soft-white/50">
+                    <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                       <span>{formatFileSize(document.fileSize)}</span>
                       <span>•</span>
                       <span>{formatDate(document.uploadedAt)}</span>
                       {document.id && (
                         <>
                           <span>•</span>
-                          <span>ID: {document.id}</span>
+                          <span className="font-mono">ID: {document.id}</span>
                         </>
                       )}
                     </div>
@@ -319,7 +319,7 @@ export const DocumentsPage: React.FC = () => {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleViewDocument(document)}
-                      className="text-scriptoryum-soft-white/70 hover:text-scriptoryum-soft-blue hover:bg-scriptoryum-soft-blue/10"
+                      className="text-muted-foreground hover:text-primary hover:bg-primary/10"
                       title="Visualizar"
                     >
                       <Eye className="h-4 w-4" />
@@ -329,7 +329,7 @@ export const DocumentsPage: React.FC = () => {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleDownloadDocument(document)}
-                      className="text-scriptoryum-soft-white/70 hover:text-scriptoryum-soft-blue hover:bg-scriptoryum-soft-blue/10"
+                      className="text-muted-foreground hover:text-info hover:bg-info/10"
                       title="Download"
                       disabled={document.status !== 'Processed'}
                     >
@@ -340,7 +340,7 @@ export const DocumentsPage: React.FC = () => {
                       variant="ghost"
                       size="sm"
                       onClick={() => handleDeleteDocument(document)}
-                      className="text-scriptoryum-soft-white/70 hover:text-scriptoryum-soft-red hover:bg-scriptoryum-soft-red/10"
+                      className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                       title="Excluir"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -351,11 +351,11 @@ export const DocumentsPage: React.FC = () => {
             </div>
           ) : (
             <div className="text-center py-12">
-              <File className="h-16 w-16 text-scriptoryum-medium-gray mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-scriptoryum-soft-white mb-2">
+              <File className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-foreground mb-2">
                 {searchTerm ? 'Nenhum documento encontrado' : 'Nenhum documento'}
               </h3>
-              <p className="text-scriptoryum-soft-white/70 mb-4">
+              <p className="text-muted-foreground mb-4">
                 {searchTerm 
                   ? 'Tente buscar com outros termos.'
                   : 'Você ainda não enviou nenhum documento.'
@@ -364,7 +364,7 @@ export const DocumentsPage: React.FC = () => {
               {!searchTerm && (
                 <Button 
                   onClick={() => window.location.href = '/upload'}
-                  className="bg-scriptoryum-soft-blue hover:bg-scriptoryum-soft-blue/90 text-white"
+                  className="bg-primary hover:bg-primary/90 text-primary-foreground"
                 >
                   Fazer Upload
                 </Button>

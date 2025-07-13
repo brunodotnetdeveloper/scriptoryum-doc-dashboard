@@ -49,19 +49,19 @@ export const DocumentDetailsModal: React.FC<DocumentDetailsModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="w-screen h-screen max-w-[95vw] max-h-[95vh] flex flex-col bg-scriptoryum-dark-gray text-scriptoryum-soft-white border-scriptoryum-medium-gray">
+      <DialogContent className="w-screen h-screen max-w-[95vw] max-h-[95vh] flex flex-col bg-background text-foreground border-border">
         <DialogHeader>
-          <DialogTitle className="text-scriptoryum-soft-white">
+          <DialogTitle className="text-foreground">
             Detalhes do Documento: {details?.originalFileName || 'Carregando...'}
           </DialogTitle>
-          <DialogDescription className="text-scriptoryum-soft-white/70">
+          <DialogDescription className="text-muted-foreground">
             Informações detalhadas sobre o documento e sua análise.
           </DialogDescription>
           <div className="flex flex-row gap-2 mt-4">
             {details && (
               <Button
                 variant="secondary"
-                className="bg-scriptoryum-soft-blue text-scriptoryum-dark-gray hover:bg-scriptoryum-soft-blue/80"
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
                 onClick={() => onDownloadDocument && onDownloadDocument(details)}
               >
                 <Download className="mr-2 h-4 w-4" /> Baixar Documento
@@ -70,7 +70,7 @@ export const DocumentDetailsModal: React.FC<DocumentDetailsModalProps> = ({
             {details?.status === 'Processed' && !isLoading && (
               <Button
                 variant="secondary"
-                className="bg-scriptoryum-soft-blue text-scriptoryum-dark-gray hover:bg-scriptoryum-soft-blue/80"
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
                 onClick={() => console.log('Analyze Document')}
               >
                 <Brain className="mr-2 h-4 w-4" /> Analisar com Escriba
@@ -79,7 +79,7 @@ export const DocumentDetailsModal: React.FC<DocumentDetailsModalProps> = ({
             {(details?.status === 'Processed' || details?.status === 'ContentAnalysisFailed' || details?.status === 'PartiallyProcessed' || details?.status === 'EntitiesExtractionFailed' || details?.status === 'RisksAnalysisFailed' || details?.status === 'InsightsGenerationFailed') && !isLoading && (
               <Button
                 variant="outline"
-                className="border-scriptoryum-medium-gray text-scriptoryum-soft-white hover:bg-scriptoryum-medium-gray"
+                className="border-border text-foreground hover:bg-accent"
                 onClick={() => console.log('Re-analyze Document')}
               >
                 <RefreshCcw className="mr-2 h-4 w-4" /> Reanalisar
@@ -88,7 +88,7 @@ export const DocumentDetailsModal: React.FC<DocumentDetailsModalProps> = ({
             {details?.status === 'TextExtractionFailed' && !isLoading && (
               <Button
                 variant="outline"
-                className="border-scriptoryum-medium-gray text-scriptoryum-soft-white hover:bg-scriptoryum-medium-gray"
+                className="border-border text-foreground hover:bg-accent"
                 onClick={() => console.log('Retry Text Extraction')}
               >
                 <RefreshCcw className="mr-2 h-4 w-4" /> Tentar Novamente Extração
@@ -97,7 +97,7 @@ export const DocumentDetailsModal: React.FC<DocumentDetailsModalProps> = ({
             {(details?.status === 'Queued' || details?.status === 'ExtractingText' || details?.status === 'AnalyzingContent') && !isLoading && (
               <Button
                 variant="outline"
-                className="border-scriptoryum-medium-gray text-scriptoryum-soft-white hover:bg-scriptoryum-medium-gray"
+                className="border-border text-foreground hover:bg-accent"
                 onClick={() => console.log('Cancel Processing')}
               >
                 Cancelar Processamento
@@ -116,13 +116,13 @@ export const DocumentDetailsModal: React.FC<DocumentDetailsModalProps> = ({
         <div className="flex-1 overflow-hidden py-4">
           {isLoading ? (
             <div className="flex justify-center items-center h-full">
-              <Loader2 className="h-8 w-8 animate-spin text-scriptoryum-soft-blue" />
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
           ) : error ? (
-            <div className="text-center text-red-500">{error}</div>
+            <div className="text-center text-destructive">{error}</div>
           ) : details ? (
             <Tabs defaultValue="extractedText" className="flex flex-col h-full">
-              <TabsList className="grid w-full grid-cols-5 bg-scriptoryum-medium-gray/20 text-scriptoryum-soft-white">
+              <TabsList className="grid w-full grid-cols-5 bg-muted text-muted-foreground">
                 <TabsTrigger value="extractedText">Texto Extraído</TabsTrigger>
                 <TabsTrigger value="entities">Entidades</TabsTrigger>
                 <TabsTrigger value="risks">Riscos</TabsTrigger>
@@ -134,7 +134,7 @@ export const DocumentDetailsModal: React.FC<DocumentDetailsModalProps> = ({
                   <ScrollArea className="h-[calc(100vh-250px)]">
                     <div className="pr-4">
                       <h3 className="text-lg font-semibold mb-2">Texto Extraído</h3>
-                      <p className="text-sm text-scriptoryum-soft-white/80 whitespace-pre-wrap">{details.textExtracted || 'Nenhum texto extraído.'}</p>
+                      <p className="text-sm text-muted-foreground whitespace-pre-wrap">{details.textExtracted || 'Nenhum texto extraído.'}</p>
                     </div>
                   </ScrollArea>
                 </TabsContent>
@@ -145,13 +145,13 @@ export const DocumentDetailsModal: React.FC<DocumentDetailsModalProps> = ({
                       {details.extractedEntities && details.extractedEntities.length > 0 ? (
                         <div className="flex flex-wrap gap-2">
                           {details.extractedEntities.map((entity, index) => (
-                            <Badge key={index} variant="secondary" className="bg-scriptoryum-medium-gray text-scriptoryum-soft-white">
+                            <Badge key={index} variant="secondary" className="bg-secondary text-secondary-foreground">
                               {entity.value} (Tipo: {entity.entityTypeText}, Score: {(entity.confidenceScore * 100).toFixed(2)}%)
                             </Badge>
                           ))}
                         </div>
                       ) : (
-                        <p className="text-sm text-scriptoryum-soft-white/70">Nenhuma entidade extraída.</p>
+                        <p className="text-sm text-muted-foreground">Nenhuma entidade extraída.</p>
                       )}
                     </div>
                   </ScrollArea>
@@ -163,14 +163,14 @@ export const DocumentDetailsModal: React.FC<DocumentDetailsModalProps> = ({
                       {details.risksDetected && details.risksDetected.length > 0 ? (
                         <div className="space-y-2">
                           {details.risksDetected.map((risk, index) => (
-                            <div key={index} className="p-3 rounded-md bg-red-900/20 border border-red-800/50">
-                              <p className="font-medium text-red-400">{risk.description}</p>
-                              <p className="text-xs text-red-500">Severidade: {risk.severity} (Nível: {risk.riskLevel})</p>
+                            <div key={index} className="p-3 rounded-md bg-destructive/10 border border-destructive/20">
+                              <p className="font-medium text-destructive">{risk.description}</p>
+                              <p className="text-xs text-destructive/80">Severidade: {risk.severity} (Nível: {risk.riskLevel})</p>
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <p className="text-sm text-scriptoryum-soft-white/70">Nenhum risco detectado.</p>
+                        <p className="text-sm text-muted-foreground">Nenhum risco detectado.</p>
                       )}
                     </div>
                   </ScrollArea>
@@ -182,14 +182,14 @@ export const DocumentDetailsModal: React.FC<DocumentDetailsModalProps> = ({
                       {details.insights && details.insights.length > 0 ? (
                         <div className="space-y-2">
                           {details.insights.map((insight, index) => (
-                            <div key={index} className="p-3 rounded-md bg-blue-900/20 border border-blue-800/50">
-                              <p className="font-medium text-blue-400">{insight.title} (Categoria: {insight.categoryText})</p>
-                              <p className="text-sm text-blue-500">{insight.description}</p>
+                            <div key={index} className="p-3 rounded-md bg-info/10 border border-info/20">
+                              <p className="font-medium text-info">{insight.title} (Categoria: {insight.categoryText})</p>
+                              <p className="text-sm text-info/80">{insight.description}</p>
                             </div>
                           ))}
                         </div>
                       ) : (
-                        <p className="text-sm text-scriptoryum-soft-white/70">Nenhum insight gerado.</p>
+                        <p className="text-sm text-muted-foreground">Nenhum insight gerado.</p>
                       )}
                     </div>
                   </ScrollArea>
@@ -199,18 +199,18 @@ export const DocumentDetailsModal: React.FC<DocumentDetailsModalProps> = ({
                     <div className="pr-4">
                       <h3 className="text-lg font-semibold mb-2">Eventos da Linha do Tempo</h3>
                       {details.timelineEvents && details.timelineEvents.length > 0 ? (
-                        <ol className="relative border-l border-scriptoryum-medium-gray ml-4">
+                        <ol className="relative border-l border-border ml-4">
                           {details.timelineEvents.map((event, index) => (
                             <li key={index} className="mb-6 ml-6">
-                              <span className="absolute flex items-center justify-center w-3 h-3 bg-scriptoryum-soft-blue rounded-full -left-1.5 ring-8 ring-scriptoryum-dark-gray"></span>
-                              <h4 className="font-semibold text-scriptoryum-soft-white">{event.title}</h4>
-                              <time className="block mb-2 text-xs font-normal leading-none text-scriptoryum-soft-white/50">{new Date(event.timestamp).toLocaleString('pt-BR')}</time>
-                              <p className="text-sm text-scriptoryum-soft-white/70">{event.description}</p>
+                              <span className="absolute flex items-center justify-center w-3 h-3 bg-primary rounded-full -left-1.5 ring-8 ring-background"></span>
+                              <h4 className="font-semibold text-foreground">{event.title}</h4>
+                              <time className="block mb-2 text-xs font-normal leading-none text-muted-foreground">{new Date(event.timestamp).toLocaleString('pt-BR')}</time>
+                              <p className="text-sm text-muted-foreground">{event.description}</p>
                             </li>
                           ))}
                         </ol>
                       ) : (
-                        <p className="text-sm text-scriptoryum-soft-white/70">Nenhum evento na linha do tempo.</p>
+                        <p className="text-sm text-muted-foreground">Nenhum evento na linha do tempo.</p>
                       )}
                     </div>
                   </ScrollArea>

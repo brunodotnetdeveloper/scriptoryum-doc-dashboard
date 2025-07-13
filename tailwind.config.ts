@@ -63,14 +63,31 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Cores personalizadas do Scriptoryum
+				// Cores de status para documentos e IA
+				success: {
+					DEFAULT: 'hsl(var(--success))',
+					foreground: 'hsl(var(--success-foreground))'
+				},
+				warning: {
+					DEFAULT: 'hsl(var(--warning))',
+					foreground: 'hsl(var(--warning-foreground))'
+				},
+				info: {
+					DEFAULT: 'hsl(var(--info))',
+					foreground: 'hsl(var(--info-foreground))'
+				},
+				// Cores específicas do Scriptoryum (mantidas para compatibilidade)
 				scriptoryum: {
-					'deep-purple': 'rgb(73, 43, 123)',
-					'dark-gray': 'rgb(34, 34, 40)',
-					'medium-gray': 'rgb(85, 85, 95)',
-					'soft-blue': 'rgb(102, 153, 255)',
-					'soft-white': 'rgb(240, 240, 245)',
-					'soft-red': 'rgb(220, 80, 80)'
+					'primary': 'hsl(217 91% 60%)',
+					'accent': 'hsl(262 83% 58%)',
+					'dark': 'hsl(220 15% 8%)',
+					'surface': 'hsl(220 15% 10%)',
+					'border': 'hsl(220 15% 20%)',
+					'text': 'hsl(220 9% 92%)',
+					'text-muted': 'hsl(220 9% 65%)',
+					'success': 'hsl(142 76% 36%)',
+					'warning': 'hsl(38 92% 50%)',
+					'error': 'hsl(0 84% 60%)'
 				}
 			},
 			borderRadius: {
@@ -79,7 +96,10 @@ export default {
 				sm: 'calc(var(--radius) - 4px)'
 			},
 			fontFamily: {
+				sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+				mono: ['JetBrains Mono', 'Fira Code', 'Monaco', 'Consolas', 'monospace'],
 				'inter': ['Inter', 'system-ui', 'sans-serif'],
+				'jetbrains': ['JetBrains Mono', 'monospace'],
 			},
 			keyframes: {
 				'accordion-down': {

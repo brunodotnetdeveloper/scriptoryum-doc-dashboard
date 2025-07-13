@@ -26,7 +26,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-scriptoryum-dark-gray font-inter">
+    <div className="min-h-screen bg-background text-foreground font-sans dark">
       <Header toggleSidebar={toggleSidebar} isMobile={isMobile} isSidebarOpen={isSidebarOpen} />
       <div className="flex h-screen pt-16">
         <Sidebar isOpen={isSidebarOpen} isMobile={isMobile} onClose={toggleSidebar} />
@@ -34,7 +34,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
           <MobileSidebarOverlay isOpen={isSidebarOpen} onClick={toggleSidebar} />
         )}
         <main className={`flex-1 overflow-auto pt-16 transition-all duration-300 ease-in-out ${isMobile ? '' : (isSidebarOpen ? 'ml-0' : 'ml-0')}`}>
-          <div className="p-6 h-full">
+          <div className="p-6 h-full bg-background">
             {children}
           </div>
         </main>

@@ -34,27 +34,27 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-scriptoryum-dark-gray flex items-center justify-center p-4 font-inter">
+    <div className="min-h-screen bg-background flex items-center justify-center p-4 font-sans">
       <div className="w-full max-w-md space-y-6">
         {/* Logo e título */}
         <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-scriptoryum-soft-white">Scriptoryum</h1>
-          <p className="text-scriptoryum-soft-white/70">Análise Inteligente de Documentos com IA</p>
+          <h1 className="text-3xl font-bold text-foreground">Scriptoryum</h1>
+          <p className="text-muted-foreground">Análise Inteligente de Documentos com IA</p>
         </div>
 
-        <Card className="bg-scriptoryum-dark-gray border-scriptoryum-medium-gray shadow-xl">
+        <Card className="bg-card border-border shadow-xl">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center text-scriptoryum-soft-white">
+            <CardTitle className="text-2xl text-center text-card-foreground">
               Entrar na sua conta
             </CardTitle>
-            <CardDescription className="text-center text-scriptoryum-soft-white/70">
+            <CardDescription className="text-center text-muted-foreground">
               Digite seu email e senha para acessar o painel
             </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-scriptoryum-soft-white">
+                <Label htmlFor="email" className="text-foreground">
                   Email
                 </Label>
                 <Input
@@ -64,12 +64,12 @@ export const Login: React.FC = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="bg-scriptoryum-medium-gray/20 border-scriptoryum-medium-gray text-scriptoryum-soft-white placeholder:text-scriptoryum-soft-white/50 focus:border-scriptoryum-soft-blue"
+                  className="bg-input border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
                   placeholder="seu@email.com"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-scriptoryum-soft-white">
+                <Label htmlFor="password" className="text-foreground">
                   Senha
                 </Label>
                 <Input
@@ -79,7 +79,7 @@ export const Login: React.FC = () => {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="bg-scriptoryum-medium-gray/20 border-scriptoryum-medium-gray text-scriptoryum-soft-white placeholder:text-scriptoryum-soft-white/50 focus:border-scriptoryum-soft-blue"
+                  className="bg-input border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
                   placeholder="Sua senha"
                 />
               </div>
@@ -90,16 +90,16 @@ export const Login: React.FC = () => {
                   type="checkbox"
                   checked={formData.rememberMe}
                   onChange={handleChange}
-                  className="rounded border-scriptoryum-medium-gray bg-scriptoryum-medium-gray/20 text-scriptoryum-soft-blue focus:ring-scriptoryum-soft-blue"
+                  className="rounded border-border bg-input text-primary focus:ring-primary"
                 />
-                <Label htmlFor="rememberMe" className="text-sm text-scriptoryum-soft-white/70">
+                <Label htmlFor="rememberMe" className="text-sm text-muted-foreground">
                   Lembrar de mim
                 </Label>
               </div>
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-scriptoryum-soft-blue hover:bg-scriptoryum-soft-blue/90 text-white font-medium py-2 px-4 rounded-md transition-colors"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-2 px-4 rounded-md transition-colors"
               >
                 {isLoading ? (
                   <>
@@ -115,9 +115,9 @@ export const Login: React.FC = () => {
         </Card>
 
         <div className="text-center">
-          <p className="text-scriptoryum-soft-white/70 text-sm">
+          <p className="text-muted-foreground text-sm">
             Não tem uma conta?{' '}
-            <a href="/register" className="text-scriptoryum-soft-blue hover:underline">
+            <a href="/register" className="text-primary hover:underline">
               Criar conta
             </a>
           </p>

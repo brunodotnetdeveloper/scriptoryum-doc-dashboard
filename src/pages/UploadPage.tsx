@@ -136,24 +136,24 @@ export const UploadPage: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-scriptoryum-soft-white">Upload de Documentos</h1>
-        <p className="text-scriptoryum-soft-white/70 mt-1">
+        <h1 className="text-3xl font-bold text-foreground">Upload de Documentos</h1>
+        <p className="text-muted-foreground mt-1">
           Envie documentos para análise inteligente com IA
         </p>
       </div>
 
       {/* Upload Area */}
-      <Card className="bg-scriptoryum-dark-gray border-scriptoryum-medium-gray">
+      <Card className="bg-card border-border">
         <CardHeader>
-          <CardTitle className="text-scriptoryum-soft-white">Selecionar Documentos</CardTitle>
-          <CardDescription className="text-scriptoryum-soft-white/70">
+          <CardTitle className="text-card-foreground">Selecionar Documentos</CardTitle>
+          <CardDescription className="text-muted-foreground">
             Formatos suportados: {acceptedFormats.join(', ').toUpperCase()} (máx. 10MB cada)
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Descrição */}
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-scriptoryum-soft-white">
+            <Label htmlFor="description" className="text-foreground">
               Descrição (opcional)
             </Label>
             <Textarea
@@ -161,7 +161,7 @@ export const UploadPage: React.FC = () => {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Adicione uma descrição para os documentos..."
-              className="bg-scriptoryum-medium-gray/20 border-scriptoryum-medium-gray text-scriptoryum-soft-white placeholder:text-scriptoryum-soft-white/50 focus:border-scriptoryum-soft-blue"
+              className="bg-input border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
               rows={3}
             />
           </div>
@@ -170,19 +170,19 @@ export const UploadPage: React.FC = () => {
           <div
             className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
               isDragOver
-                ? 'border-scriptoryum-soft-blue bg-scriptoryum-soft-blue/10'
-                : 'border-scriptoryum-medium-gray hover:border-scriptoryum-soft-blue/50 hover:bg-scriptoryum-medium-gray/10'
+                ? 'border-primary bg-primary/10'
+                : 'border-border hover:border-primary/50 hover:bg-accent/50'
             }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
           >
-            <Upload className="h-12 w-12 text-scriptoryum-soft-blue mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-scriptoryum-soft-white mb-2">
+            <Upload className="h-12 w-12 text-primary mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">
               Arraste arquivos aqui ou clique para selecionar
             </h3>
-            <p className="text-scriptoryum-soft-white/70">
+            <p className="text-muted-foreground">
               Você pode selecionar múltiplos arquivos de uma vez
             </p>
           </div>
@@ -198,7 +198,7 @@ export const UploadPage: React.FC = () => {
 
           <Button
             onClick={() => fileInputRef.current?.click()}
-            className="w-full bg-scriptoryum-soft-blue hover:bg-scriptoryum-soft-blue/90 text-white"
+            className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
           >
             <Upload className="mr-2 h-4 w-4" />
             Selecionar Arquivos
@@ -208,10 +208,10 @@ export const UploadPage: React.FC = () => {
 
       {/* Lista de Arquivos */}
       {files.length > 0 && (
-        <Card className="bg-scriptoryum-dark-gray border-scriptoryum-medium-gray">
+        <Card className="bg-card border-border">
           <CardHeader>
-            <CardTitle className="text-scriptoryum-soft-white">Arquivos Selecionados</CardTitle>
-            <CardDescription className="text-scriptoryum-soft-white/70">
+            <CardTitle className="text-card-foreground">Arquivos Selecionados</CardTitle>
+            <CardDescription className="text-muted-foreground">
               {files.length} arquivo{files.length > 1 ? 's' : ''} selecionado{files.length > 1 ? 's' : ''}
             </CardDescription>
           </CardHeader>
@@ -220,19 +220,19 @@ export const UploadPage: React.FC = () => {
               {files.map((uploadFile, index) => (
                 <div
                   key={index}
-                  className="flex items-center space-x-3 p-3 bg-scriptoryum-medium-gray/10 rounded-lg"
+                  className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg border border-border/50"
                 >
-                  <File className="h-5 w-5 text-scriptoryum-soft-blue flex-shrink-0" />
+                  <File className="h-5 w-5 text-primary flex-shrink-0" />
                   
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-scriptoryum-soft-white truncate">
+                    <p className="text-sm font-medium text-foreground truncate">
                       {uploadFile.file.name}
                     </p>
-                    <p className="text-xs text-scriptoryum-soft-white/50">
+                    <p className="text-xs text-muted-foreground">
                       {formatFileSize(uploadFile.file.size)}
                     </p>
                     {uploadFile.error && (
-                      <p className="text-xs text-scriptoryum-soft-red mt-1">
+                      <p className="text-xs text-destructive mt-1">
                         {uploadFile.error}
                       </p>
                     )}
@@ -240,20 +240,20 @@ export const UploadPage: React.FC = () => {
 
                   <div className="flex items-center space-x-2 flex-shrink-0">
                     {uploadFile.status === 'uploading' && (
-                      <Loader2 className="h-4 w-4 animate-spin text-scriptoryum-soft-blue" />
+                      <Loader2 className="h-4 w-4 animate-spin text-primary" />
                     )}
                     {uploadFile.status === 'success' && (
-                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      <CheckCircle className="h-4 w-4 text-success" />
                     )}
                     {uploadFile.status === 'error' && (
-                      <AlertCircle className="h-4 w-4 text-scriptoryum-soft-red" />
+                      <AlertCircle className="h-4 w-4 text-destructive" />
                     )}
                     
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => removeFile(index)}
-                      className="text-scriptoryum-soft-white/70 hover:text-scriptoryum-soft-red hover:bg-scriptoryum-soft-red/10"
+                      className="text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                     >
                       <X className="h-4 w-4" />
                     </Button>

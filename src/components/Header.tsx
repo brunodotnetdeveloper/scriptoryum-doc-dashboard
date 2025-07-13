@@ -35,60 +35,60 @@ export const Header: React.FC<HeaderProps> = ({ toggleSidebar, isMobile, isSideb
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between px-4 border-b border-scriptoryum-gray bg-scriptoryum-dark-gray">
+    <header className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between px-4 border-b border-border bg-card shadow-sm">
       <div className="flex items-center">
         {(!isSidebarOpen || isMobile) && (
           <Button
             variant="ghost"
             size="icon"
-            className="mr-2 text-scriptoryum-soft-white hover:bg-scriptoryum-medium-gray/50"
+            className="mr-2 text-foreground hover:bg-accent hover:text-accent-foreground"
             onClick={toggleSidebar}
           >
             <Menu className="h-6 w-6" />
           </Button>
         )}
-        <h1 className="text-2xl font-bold text-scriptoryum-soft-white font-inter">
+        <h1 className="text-2xl font-bold text-foreground font-sans">
           Scriptoryum
         </h1>
-        <div className="ml-3 px-2 py-1 bg-scriptoryum-deep-purple/20 rounded-md">
-          <span className="text-xs text-scriptoryum-soft-blue font-medium">Análise de Documentos com I.A</span>
+        <div className="ml-3 px-3 py-1 bg-primary/10 rounded-lg border border-primary/20">
+          <span className="text-xs text-primary font-semibold">Análise de Documentos com I.A</span>
         </div>
       </div>
 
       <div className="flex items-center space-x-4">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:bg-scriptoryum-medium-gray/50">
-              <Avatar className="h-10 w-10 border-2 border-scriptoryum-medium-gray">
+            <Button variant="ghost" className="relative h-10 w-10 rounded-full hover:bg-accent hover:text-accent-foreground">
+              <Avatar className="h-10 w-10 border-2 border-border">
                 <AvatarImage src="/placeholder-avatar.jpg" alt={user?.userName} />
                 <AvatarFallback className={cn(
-                  "bg-scriptoryum-deep-purple text-scriptoryum-soft-white font-medium",
-                  !user?.userName && "bg-scriptoryum-medium-gray"
+                  "bg-primary text-primary-foreground font-medium",
+                  !user?.userName && "bg-muted text-muted-foreground"
                 )}>
                   {getInitials(user?.userName)}
                 </AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56 bg-scriptoryum-dark-gray border-scriptoryum-medium-gray" align="end">
+          <DropdownMenuContent className="w-56 bg-popover border-border" align="end">
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none text-scriptoryum-soft-white">
+                <p className="text-sm font-medium leading-none text-popover-foreground">
                   {user?.userName}
                 </p>
-                <p className="text-xs leading-none text-scriptoryum-soft-white/70">
+                <p className="text-xs leading-none text-muted-foreground">
                   {user?.email}
                 </p>
               </div>
             </DropdownMenuLabel>
-            <DropdownMenuSeparator className="bg-scriptoryum-medium-gray" />
-            <DropdownMenuItem className="text-scriptoryum-soft-white hover:bg-scriptoryum-medium-gray/50 cursor-pointer">
+            <DropdownMenuSeparator className="bg-border" />
+            <DropdownMenuItem className="text-popover-foreground hover:bg-accent hover:text-accent-foreground cursor-pointer">
               <User className="mr-2 h-4 w-4" />
               <span>Perfil</span>
             </DropdownMenuItem>
-            <DropdownMenuSeparator className="bg-scriptoryum-medium-gray" />
+            <DropdownMenuSeparator className="bg-border" />
             <DropdownMenuItem 
-              className="text-scriptoryum-soft-red hover:bg-scriptoryum-soft-red/10 cursor-pointer"
+              className="text-destructive hover:bg-destructive/10 hover:text-destructive cursor-pointer"
               onClick={logout}
             >
               <LogOut className="mr-2 h-4 w-4" />

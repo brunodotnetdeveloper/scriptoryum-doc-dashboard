@@ -99,15 +99,15 @@ export const Dashboard: React.FC = () => {
       {/* Header do Dashboard */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-scriptoryum-soft-white">
+          <h1 className="text-3xl font-bold text-foreground">
             Dashboard
           </h1>
-          <p className="text-scriptoryum-soft-white/70 mt-1">
+          <p className="text-muted-foreground mt-1">
             Bem-vindo de volta, {user?.userName}!
           </p>
         </div>
         <div className="text-right">
-          <p className="text-sm text-scriptoryum-soft-white/50">
+          <p className="text-sm text-muted-foreground">
             {new Date().toLocaleDateString('pt-BR', { 
               weekday: 'long', 
               year: 'numeric', 
@@ -120,57 +120,57 @@ export const Dashboard: React.FC = () => {
 
       {/* Cards de Estatísticas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-scriptoryum-dark-gray border-scriptoryum-medium-gray">
+        <Card className="bg-card border-border hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-scriptoryum-soft-white/70">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Total de Documentos
             </CardTitle>
-            <FileText className="h-4 w-4 text-scriptoryum-soft-blue" />
+            <FileText className="h-4 w-4 text-primary" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-scriptoryum-soft-white">
+            <div className="text-2xl font-bold text-card-foreground">
               {isLoading ? '...' : stats.totalDocuments}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-scriptoryum-dark-gray border-scriptoryum-medium-gray">
+        <Card className="bg-card border-border hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-scriptoryum-soft-white/70">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Documentos Este Mês
             </CardTitle>
-            <Upload className="h-4 w-4 text-scriptoryum-soft-blue" />
+            <Upload className="h-4 w-4 text-info" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-scriptoryum-soft-white">
+            <div className="text-2xl font-bold text-card-foreground">
               {isLoading ? '...' : stats.documentsThisMonth}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-scriptoryum-dark-gray border-scriptoryum-medium-gray">
+        <Card className="bg-card border-border hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-scriptoryum-soft-white/70">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Em Processamento
             </CardTitle>
-            <div className="h-4 w-4 bg-yellow-500 rounded-full animate-pulse" />
+            <div className="h-4 w-4 bg-warning rounded-full animate-pulse" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-scriptoryum-soft-white">
+            <div className="text-2xl font-bold text-card-foreground">
               {isLoading ? '...' : stats.processingDocuments}
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-scriptoryum-dark-gray border-scriptoryum-medium-gray">
+        <Card className="bg-card border-border hover:shadow-lg transition-shadow">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-scriptoryum-soft-white/70">
+            <CardTitle className="text-sm font-medium text-muted-foreground">
               Completos
             </CardTitle>
-            <div className="h-4 w-4 bg-green-500 rounded-full" />
+            <div className="h-4 w-4 bg-success rounded-full" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-scriptoryum-soft-white">
+            <div className="text-2xl font-bold text-card-foreground">
               {isLoading ? '...' : stats.completedDocuments}
             </div>
           </CardContent>
@@ -180,10 +180,10 @@ export const Dashboard: React.FC = () => {
       {/* Grid de Conteúdo */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Documentos Recentes */}
-        <Card className="bg-scriptoryum-dark-gray border-scriptoryum-medium-gray">
+        <Card className="bg-card border-border hover:shadow-lg transition-shadow">
           <CardHeader>
-            <CardTitle className="text-scriptoryum-soft-white">Documentos Recentes</CardTitle>
-            <CardDescription className="text-scriptoryum-soft-white/70">
+            <CardTitle className="text-card-foreground">Documentos Recentes</CardTitle>
+            <CardDescription className="text-muted-foreground">
               Seus últimos documentos enviados
             </CardDescription>
           </CardHeader>
@@ -192,31 +192,31 @@ export const Dashboard: React.FC = () => {
               <div className="space-y-3">
                 {[...Array(3)].map((_, i) => (
                   <div key={i} className="animate-pulse">
-                    <div className="h-4 bg-scriptoryum-medium-gray rounded w-3/4 mb-2"></div>
-                    <div className="h-3 bg-scriptoryum-medium-gray/50 rounded w-1/2"></div>
+                    <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
+                    <div className="h-3 bg-muted/50 rounded w-1/2"></div>
                   </div>
                 ))}
               </div>
             ) : recentDocuments.length > 0 ? (
               <div className="space-y-3">
                 {recentDocuments.map((doc, index) => (
-                  <div key={index} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-scriptoryum-medium-gray/20 transition-colors">
-                    <File className="h-4 w-4 text-scriptoryum-soft-blue" />
+                  <div key={index} className="flex items-center space-x-3 p-3 rounded-lg hover:bg-accent/50 transition-colors border border-border/50">
+                    <File className="h-4 w-4 text-primary" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-scriptoryum-soft-white truncate">
+                      <p className="text-sm font-medium text-card-foreground truncate">
                         {doc.originalFileName || `Documento ${doc.id}`}
                       </p>
-                      <p className="text-xs text-scriptoryum-soft-white/50">
+                      <p className="text-xs text-muted-foreground">
                         {doc.uploadedAt ? formatDate(doc.uploadedAt) : 'Data não disponível'}
                       </p>
                     </div>
                     <div className="flex-shrink-0">
                       <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                         doc.status === 'Processed' 
-                          ? 'bg-green-100 text-green-800' 
+                          ? 'bg-success/10 text-success border border-success/20' 
                           : doc.status === 'ExtractingText' || doc.status === 'Queued' || doc.status === 'AnalyzingContent' || doc.status === 'Uploaded'
-                          ? 'bg-yellow-100 text-yellow-800'
-                          : 'bg-red-100 text-red-800'
+                          ? 'bg-warning/10 text-warning border border-warning/20'
+                          : 'bg-destructive/10 text-destructive border border-destructive/20'
                       }`}>
                         {getStatusText(doc.status)}
                       </span>
@@ -226,9 +226,9 @@ export const Dashboard: React.FC = () => {
               </div>
             ) : (
               <div className="text-center py-8">
-                <File className="h-12 w-12 text-scriptoryum-medium-gray mx-auto mb-4" />
-                <p className="text-scriptoryum-soft-white/70">Nenhum documento encontrado</p>
-                <p className="text-sm text-scriptoryum-soft-white/50 mt-1">
+                <File className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <p className="text-muted-foreground">Nenhum documento encontrado</p>
+                <p className="text-sm text-muted-foreground/70 mt-1">
                   Faça upload do seu primeiro documento!
                 </p>
               </div>
@@ -237,35 +237,37 @@ export const Dashboard: React.FC = () => {
         </Card>
 
         {/* Informações do Perfil */}
-        <Card className="bg-scriptoryum-dark-gray border-scriptoryum-medium-gray">
+        <Card className="bg-card border-border hover:shadow-lg transition-shadow">
           <CardHeader>
-            <CardTitle className="text-scriptoryum-soft-white">Informações da Conta</CardTitle>
-            <CardDescription className="text-scriptoryum-soft-white/70">
+            <CardTitle className="text-card-foreground">Informações da Conta</CardTitle>
+            <CardDescription className="text-muted-foreground">
               Detalhes do seu perfil
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="flex items-center space-x-3">
-              <User className="h-5 w-5 text-scriptoryum-soft-blue" />
+            <div className="flex items-center space-x-3 p-3 rounded-lg bg-accent/20 border border-border/50">
+              <User className="h-5 w-5 text-primary" />
               <div>
-                <p className="text-sm font-medium text-scriptoryum-soft-white">Nome de usuário</p>
-                <p className="text-sm text-scriptoryum-soft-white/70">{user?.userName}</p>
+                <p className="text-sm font-medium text-card-foreground">Nome de usuário</p>
+                <p className="text-sm text-muted-foreground">{user?.userName}</p>
               </div>
             </div>
-            <div className="flex items-center space-x-3">
-              <div className="h-5 w-5 rounded-full bg-scriptoryum-soft-blue flex items-center justify-center">
-                <span className="text-xs text-white">@</span>
+            <div className="flex items-center space-x-3 p-3 rounded-lg bg-accent/20 border border-border/50">
+              <div className="h-5 w-5 rounded-full bg-primary flex items-center justify-center">
+                <span className="text-xs text-primary-foreground font-mono">@</span>
               </div>
               <div>
-                <p className="text-sm font-medium text-scriptoryum-soft-white">Email</p>
-                <p className="text-sm text-scriptoryum-soft-white/70">{user?.email}</p>
+                <p className="text-sm font-medium text-card-foreground">Email</p>
+                <p className="text-sm text-muted-foreground font-mono">{user?.email}</p>
               </div>
             </div>
-            <div className="flex items-center space-x-3">
-              <div className={`h-2 w-2 rounded-full ${user?.emailConfirmed ? 'bg-green-500' : 'bg-yellow-500'}`} />
+            <div className="flex items-center space-x-3 p-3 rounded-lg bg-accent/20 border border-border/50">
+              <div className={`h-3 w-3 rounded-full ${user?.emailConfirmed ? 'bg-success' : 'bg-warning'}`} />
               <div>
-                <p className="text-sm font-medium text-scriptoryum-soft-white">Status do Email</p>
-                <p className="text-sm text-scriptoryum-soft-white/70">
+                <p className="text-sm font-medium text-card-foreground">Status do Email</p>
+                <p className={`text-sm font-medium ${
+                  user?.emailConfirmed ? 'text-success' : 'text-warning'
+                }`}>
                   {user?.emailConfirmed ? 'Verificado' : 'Pendente verificação'}
                 </p>
               </div>
