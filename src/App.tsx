@@ -10,6 +10,8 @@ import { Login } from "@/pages/Login";
 import { Dashboard } from "@/pages/Dashboard";
 import { UploadPage } from "@/pages/UploadPage";
 import { DocumentsPage } from "@/pages/DocumentsPage";
+import { EscribaPage } from "@/pages/EscribaPage";
+import { AIConfigPage } from "@/pages/AIConfigPage";
 import NotFound from "./pages/NotFound";
 import { Loader2 } from "lucide-react";
 
@@ -100,6 +102,22 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <DocumentsPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/escriba" 
+        element={
+          <ProtectedRoute>
+            <EscribaPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/ai-config" 
+        element={
+          <ProtectedRoute>
+            <AIConfigPage />
           </ProtectedRoute>
         } 
       />

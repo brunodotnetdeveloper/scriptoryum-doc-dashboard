@@ -7,6 +7,8 @@ import { Loader2, Brain, Trash2, RefreshCcw } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
+import { documentsService } from '@/services';
+import { toast } from 'sonner';
 
 interface DocumentDetailsModalProps {
   isOpen: boolean;
@@ -22,6 +24,45 @@ export const DocumentDetailsModal: React.FC<DocumentDetailsModalProps> = ({
   const [details, setDetails] = React.useState<DocumentDetails | null>(null);
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = React.useState(false);
+
+  const handleAnalyzeDocument = async (force: boolean = false) => {
+    if (!details || !documentId) return;
+
+    setIsAnalyzing(true);
+    try {
+      await documentsService.startDocumentAnalysis(documentId, force);
+      toast.success('Análise iniciada com sucesso!');
+      
+      // Atualizar o status do documento
+      setDetails(prev => prev ? { ...prev, status: 'AnalyzingContent' } : null);
+    } catch (error) {
+      console.error('Erro ao iniciar análise:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      
+      if (errorMessage.includes('already analyzed') || errorMessage.includes('já analisado')) {
+        toast.error('Documento já foi analisado. Use "Reanalisar" para forçar uma nova análise.', {
+          duration: 5000,
+        });
+      } else if (errorMessage.includes('already in progress') || errorMessage.includes('em andamento')) {
+        toast.error('Análise já está em andamento. Aguarde a conclusão.', {
+          duration: 5000,
+        });
+      } else {
+        toast.error(`Erro ao iniciar análise: ${errorMessage}`);
+      }
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const handleAnalyzeClick = () => {
+    handleAnalyzeDocument(false);
+  };
+
+  const handleForceAnalyzeClick = () => {
+    handleAnalyzeDocument(true);
+  };
 
   React.useEffect(() => {
     if (isOpen && documentId) {
@@ -71,18 +112,30 @@ export const DocumentDetailsModal: React.FC<DocumentDetailsModalProps> = ({
               <Button
                 variant="secondary"
                 className="bg-primary text-primary-foreground hover:bg-primary/90"
-                onClick={() => console.log('Analyze Document')}
+                onClick={handleAnalyzeClick}
+                disabled={isAnalyzing}
               >
-                <Brain className="mr-2 h-4 w-4" /> Analisar com Escriba
+                {isAnalyzing ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Brain className="mr-2 h-4 w-4" />
+                )}
+                {isAnalyzing ? 'Iniciando Análise...' : 'Analisar com Escriba'}
               </Button>
             )}
             {(details?.status === 'Processed' || details?.status === 'ContentAnalysisFailed' || details?.status === 'PartiallyProcessed' || details?.status === 'EntitiesExtractionFailed' || details?.status === 'RisksAnalysisFailed' || details?.status === 'InsightsGenerationFailed') && !isLoading && (
               <Button
                 variant="outline"
                 className="border-border text-foreground hover:bg-accent"
-                onClick={() => console.log('Re-analyze Document')}
+                onClick={handleForceAnalyzeClick}
+                disabled={isAnalyzing}
               >
-                <RefreshCcw className="mr-2 h-4 w-4" /> Reanalisar
+                {isAnalyzing ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCcw className="mr-2 h-4 w-4" />
+                )}
+                {isAnalyzing ? 'Reanalysando...' : 'Reanalisar'}
               </Button>
             )}
             {details?.status === 'TextExtractionFailed' && !isLoading && (

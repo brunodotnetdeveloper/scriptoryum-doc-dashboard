@@ -26,7 +26,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen bg-background text-foreground font-sans dark">
+    <div className="min-h-screen bg-background text-foreground font-sans">
       <Header toggleSidebar={toggleSidebar} isMobile={isMobile} isSidebarOpen={isSidebarOpen} />
       <div className="flex h-screen pt-16">
         <Sidebar isOpen={isSidebarOpen} isMobile={isMobile} onClose={toggleSidebar} />

@@ -2,13 +2,18 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Upload, FileText } from 'lucide-react';
+import { LayoutDashboard, Upload, FileText, Bot, Settings } from 'lucide-react';
 
 const menuItems = [
   {
     name: 'Dashboard',
     path: '/dashboard',
     icon: LayoutDashboard,
+  },
+  {
+    name: 'Escriba',
+    path: '/escriba',
+    icon: Bot,
   },
   {
     name: 'Upload',
@@ -19,6 +24,11 @@ const menuItems = [
     name: 'Documentos',
     path: '/documents',
     icon: FileText,
+  },
+  {
+    name: 'Configurações IA',
+    path: '/ai-config',
+    icon: Settings,
   },
 ];
 

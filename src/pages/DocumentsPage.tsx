@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { accountService, documentsService } from '@/services';
 import { toast } from '@/hooks/use-toast';
-import { File, Search, Download, Eye, Trash2, Loader2, RefreshCw } from 'lucide-react';
+import { File, Search, Download, Eye, Trash2, Loader2, RefreshCw, Brain } from 'lucide-react';
 import { Document } from '@/types/api';
 import { DocumentDetailsModal } from '@/components/DocumentDetailsModal';
 
@@ -19,6 +19,7 @@ export const DocumentsPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedDocumentId, setSelectedDocumentId] = useState<number | null>(null);
+  const [analyzingDocuments, setAnalyzingDocuments] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     loadDocuments();
@@ -205,6 +206,71 @@ export const DocumentsPage: React.FC = () => {
     setDocuments(prev => prev.filter(d => d.id !== document.id));
   };
 
+  const handleAnalyzeDocument = async (document: Document) => {
+    try {
+      // Adicionar documento ao conjunto de documentos em análise
+      setAnalyzingDocuments(prev => new Set(prev).add(document.id));
+
+      // Iniciar análise
+      const response = await documentsService.startDocumentAnalysis(document.id);
+      
+      toast({
+        title: "Análise iniciada",
+        description: `A análise do documento ${document.originalFileName} foi iniciada com sucesso.`,
+      });
+
+      // Atualizar o status do documento na lista local
+      setDocuments(prev => prev.map(d => 
+        d.id === document.id 
+          ? { ...d, status: response.status || 'AnalyzingContent' }
+          : d
+      ));
+
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+      
+      if (errorMessage.includes('already analyzed') || errorMessage.includes('já analisado')) {
+        toast({
+          title: "Documento já analisado",
+          description: `${document.originalFileName} já foi analisado. Abra os detalhes para reanalisar.`,
+          variant: "destructive",
+        });
+      } else if (errorMessage.includes('already in progress') || errorMessage.includes('em andamento')) {
+        toast({
+          title: "Análise em andamento",
+          description: `A análise de ${document.originalFileName} já está em progresso.`,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Erro ao iniciar análise",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      }
+    } finally {
+      // Remover documento do conjunto de documentos em análise
+      setAnalyzingDocuments(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(document.id);
+        return newSet;
+      });
+    }
+  };
+
+  const canAnalyzeDocument = (document: Document): boolean => {
+    // Documento pode ser analisado se:
+    // 1. Está processado (texto extraído)
+    // 2. Não está sendo analisado atualmente
+    // 3. Não está em um estado de análise já
+    const analyzableStatuses = ['Processed'];
+    const nonAnalyzableStatuses = ['AnalyzingContent', 'ContentAnalysisFailed'];
+    
+    return analyzableStatuses.includes(document.status) && 
+           !nonAnalyzableStatuses.includes(document.status) &&
+           !analyzingDocuments.has(document.id);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -324,6 +390,23 @@ export const DocumentsPage: React.FC = () => {
                     >
                       <Eye className="h-4 w-4" />
                     </Button>
+                    
+                    {canAnalyzeDocument(document) && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleAnalyzeDocument(document)}
+                        className="text-muted-foreground hover:text-purple-600 hover:bg-purple-600/10"
+                        title="Analisar com IA"
+                        disabled={analyzingDocuments.has(document.id)}
+                      >
+                        {analyzingDocuments.has(document.id) ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Brain className="h-4 w-4" />
+                        )}
+                      </Button>
+                    )}
                     
                     <Button
                       variant="ghost"

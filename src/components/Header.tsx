@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Menu } from 'lucide-react';
+import { Menu, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
@@ -47,11 +47,15 @@ export const Header: React.FC<HeaderProps> = ({ toggleSidebar, isMobile, isSideb
             <Menu className="h-6 w-6" />
           </Button>
         )}
-        <h1 className="text-2xl font-bold text-foreground font-sans">
-          Scriptoryum
-        </h1>
+        <div className="flex items-center">
+          <BookOpen className="h-7 w-7 text-amber-500 mr-2" />
+          <h1 className="text-2xl font-bold font-sans">
+            <span className="text-amber-500">Script</span>
+            <span className="text-foreground">oryum</span>
+          </h1>
+        </div>
         <div className="ml-3 px-3 py-1 bg-primary/10 rounded-lg border border-primary/20">
-          <span className="text-xs text-primary font-semibold">Análise de Documentos com I.A</span>
+          <span className="text-xs text-primary font-semibold">Beta</span>
         </div>
       </div>
 

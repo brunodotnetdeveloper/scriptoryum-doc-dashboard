@@ -1,6 +1,9 @@
 import { UploadDocumentResponseDto } from '@/types/api';
 import { API_BASE_URL, BaseService } from './base.service';
 
+// URL da API de análise de documentos
+const ANALYSIS_API_BASE_URL = 'http://localhost:8000';
+
 class DocumentsService extends BaseService {
     async getDocumentDetails(id: number): Promise<any> {
         const token = localStorage.getItem('authToken');
@@ -44,6 +47,52 @@ class DocumentsService extends BaseService {
         });
 
         return this.handleResponse<UploadDocumentResponseDto>(response);
+    }
+
+    // Métodos para análise de documentos
+    async startDocumentAnalysis(documentId: number, force: boolean = false): Promise<any> {
+        const response = await fetch(`${ANALYSIS_API_BASE_URL}/analyze/${documentId}?force=${force}`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+            },
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ detail: 'Erro desconhecido' }));
+            
+            if (response.status === 409) {
+                // Handle 409 Conflict specifically
+                throw new Error(errorData.detail || 'Conflito na análise do documento');
+            }
+            
+            throw new Error(errorData.detail || errorData.message || `HTTP ${response.status}`);
+        }
+
+        return response.json();
+    }
+
+    async getAnalysisStatus(documentId: number): Promise<any> {
+        const response = await fetch(`${ANALYSIS_API_BASE_URL}/status/${documentId}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+            },
+        });
+
+        return this.handleResponse<any>(response);
+    }
+
+    async getAnalysisResults(documentId: number): Promise<any> {
+        const response = await fetch(`${ANALYSIS_API_BASE_URL}/results/${documentId}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+            },
+        });
+
+        return this.handleResponse<any>(response);
     }
 }
 

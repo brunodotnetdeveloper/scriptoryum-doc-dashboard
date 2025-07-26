@@ -128,3 +128,37 @@ export interface TimelineEvent {
   timestamp: string;
   description: string;
 }
+
+// AI Configuration Types
+export type AIProvider = 'openai' | 'claude' | 'gemini';
+
+export interface AIModel {
+  id: string;
+  name: string;
+  description: string;
+  maxTokens: number;
+  costPer1kTokens: number;
+}
+
+export interface AIProviderConfig {
+  provider: AIProvider;
+  apiKey: string;
+  selectedModel: string;
+  isEnabled: boolean;
+}
+
+export interface AIConfiguration {
+  id: string;
+  userId: string;
+  providers: AIProviderConfig[];
+  defaultProvider: AIProvider;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AIConfigurationResponse {
+  success: boolean;
+  configuration?: AIConfiguration;
+  message?: string;
+  errors?: string[];
+}
