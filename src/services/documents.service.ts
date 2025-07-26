@@ -2,7 +2,8 @@ import { UploadDocumentResponseDto } from '@/types/api';
 import { API_BASE_URL, BaseService } from './base.service';
 
 // URL da API de análise de documentos
-const ANALYSIS_API_BASE_URL = 'http://localhost:8000';
+// const ANALYSIS_API_BASE_URL = 'http://localhost:8000';
+const ANALYSIS_API_BASE_URL = 'https://analysis-api.scriptoryum.com.br';
 
 class DocumentsService extends BaseService {
     async getDocumentDetails(id: number): Promise<any> {

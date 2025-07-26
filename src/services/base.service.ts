@@ -1,5 +1,5 @@
-// export const API_BASE_URL = 'https://api.scriptoryum.com.br';
-export const API_BASE_URL = 'https://localhost:7020';
+export const API_BASE_URL = 'https://api.scriptoryum.com.br';
+// export const API_BASE_URL = 'https://localhost:7020';
 
 export abstract class BaseService {
   protected getAuthHeaders(): HeadersInit {
