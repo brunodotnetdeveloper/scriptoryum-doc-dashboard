@@ -72,16 +72,19 @@ export const EscribaPage: React.FC = () => {
         accountService.getUserDocuments().catch(() => ({ documents: [] }))
       ]);
       
-      setSessions(sessionsData);
+      // Garantir que sessionsData é um array
+      const validSessions = Array.isArray(sessionsData) ? sessionsData : [];
+      setSessions(validSessions);
       setDocuments(documentsData.documents || []);
       
       // Se não há sessões, criar uma nova
-      if (sessionsData.length === 0) {
+      if (validSessions.length === 0) {
         await createNewSession();
       } else {
         // Carregar a sessão mais recente
-        setCurrentSession(sessionsData[0]);
-        setMessages(sessionsData[0].messages || []);
+        const firstSession = validSessions[0];
+        setCurrentSession(firstSession);
+        setMessages(firstSession?.messages || []);
       }
       
       // Carregar sugestões iniciais
@@ -110,9 +113,10 @@ export const EscribaPage: React.FC = () => {
   const loadSuggestions = async (context?: string) => {
     try {
       const suggestionsData = await escribaService.getSuggestions(context);
-      setSuggestions(suggestionsData);
+      setSuggestions(Array.isArray(suggestionsData) ? suggestionsData : []);
     } catch (error) {
       console.error('Erro ao carregar sugestões:', error);
+      setSuggestions([]);
     }
   };
 
@@ -123,7 +127,7 @@ export const EscribaPage: React.FC = () => {
   const createNewSession = async () => {
     try {
       const newSession = await escribaService.createChatSession();
-      setSessions(prev => [newSession, ...prev]);
+      setSessions(prev => Array.isArray(prev) ? [newSession, ...prev] : [newSession]);
       setCurrentSession(newSession);
       setMessages([]);
       setSelectedDocument(null);
@@ -143,7 +147,7 @@ export const EscribaPage: React.FC = () => {
       setIsLoading(true);
       const sessionData = await escribaService.getChatSession(session.id);
       setCurrentSession(sessionData);
-      setMessages(sessionData.messages || []);
+      setMessages(Array.isArray(sessionData?.messages) ? sessionData.messages : []);
     } catch (error) {
       console.error('Erro ao carregar sessão:', error);
       toast({
@@ -159,10 +163,10 @@ export const EscribaPage: React.FC = () => {
   const deleteSession = async (sessionId: string) => {
     try {
       await escribaService.deleteChatSession(sessionId);
-      setSessions(prev => prev.filter(s => s.id !== sessionId));
+      setSessions(prev => Array.isArray(prev) ? prev.filter(s => s.id !== sessionId) : []);
       
       if (currentSession?.id === sessionId) {
-        const remainingSessions = sessions.filter(s => s.id !== sessionId);
+        const remainingSessions = Array.isArray(sessions) ? sessions.filter(s => s.id !== sessionId) : [];
         if (remainingSessions.length > 0) {
           selectSession(remainingSessions[0]);
         } else {
@@ -196,7 +200,7 @@ export const EscribaPage: React.FC = () => {
       documentName: selectedDocument?.originalFileName,
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    setMessages(prev => Array.isArray(prev) ? [...prev, userMessage] : [userMessage]);
     setInputMessage('');
     setIsSending(true);
 
@@ -215,10 +219,10 @@ export const EscribaPage: React.FC = () => {
         timestamp: new Date(),
       };
 
-      setMessages(prev => [...prev, assistantMessage]);
+      setMessages(prev => Array.isArray(prev) ? [...prev, assistantMessage] : [assistantMessage]);
       
       // Atualizar sugestões se fornecidas
-      if (response.suggestions) {
+      if (response.suggestions && Array.isArray(response.suggestions)) {
         setSuggestions(response.suggestions);
       }
     } catch (error) {
@@ -303,7 +307,7 @@ export const EscribaPage: React.FC = () => {
                   <RefreshCw className="h-4 w-4 animate-spin mx-auto mb-2" />
                   Carregando conversas...
                 </div>
-              ) : sessions.length === 0 ? (
+              ) : !Array.isArray(sessions) || sessions.length === 0 ? (
                 <div className="p-4 text-center text-muted-foreground">
                   <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
                   <p className="text-sm">Nenhuma conversa ainda</p>
@@ -311,7 +315,7 @@ export const EscribaPage: React.FC = () => {
                 </div>
               ) : (
                 <div className="space-y-1 p-2">
-                  {sessions.map((session) => (
+                  {Array.isArray(sessions) && sessions.map((session) => (
                     <div
                       key={session.id}
                       className={`group flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${
@@ -436,7 +440,7 @@ export const EscribaPage: React.FC = () => {
                 <div className="flex items-center justify-center h-full">
                   <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
                 </div>
-              ) : messages.length === 0 ? (
+              ) : !Array.isArray(messages) || messages.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
                   <div className="p-4 rounded-full bg-primary/10">
                     <Sparkles className="h-8 w-8 text-primary" />
@@ -453,7 +457,7 @@ export const EscribaPage: React.FC = () => {
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {messages.map((message) => (
+                  {Array.isArray(messages) && messages.map((message) => (
                     <div
                       key={message.id}
                       className={`flex gap-3 ${
@@ -536,13 +540,13 @@ export const EscribaPage: React.FC = () => {
           </CardContent>
 
           {/* Sugestões */}
-          {suggestions.length > 0 && messages.length === 0 && (
+          {Array.isArray(suggestions) && suggestions.length > 0 && Array.isArray(messages) && messages.length === 0 && (
             <div className="border-t p-4">
               <p className="text-sm text-muted-foreground mb-3">
                 Sugestões para começar:
               </p>
               <div className="flex flex-wrap gap-2">
-                {suggestions.map((suggestion, index) => (
+                {Array.isArray(suggestions) && suggestions.map((suggestion, index) => (
                   <Button
                     key={index}
                     onClick={() => useSuggestion(suggestion)}

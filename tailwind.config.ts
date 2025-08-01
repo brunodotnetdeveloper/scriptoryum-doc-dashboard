@@ -76,10 +76,10 @@ export default {
 					DEFAULT: 'hsl(var(--info))',
 					foreground: 'hsl(var(--info-foreground))'
 				},
-				// Cores específicas do Scriptoryum (mantidas para compatibilidade)
+				// Cores específicas do Scriptoryum - Nova paleta azul e dourado
 				scriptoryum: {
-					'primary': 'hsl(217 91% 60%)',
-					'accent': 'hsl(262 83% 58%)',
+					'primary': 'hsl(210 79% 28%)', // Azul escuro #0F4C81
+					'accent': 'hsl(45 59% 52%)', // Dourado #D4AF37
 					'dark': 'hsl(220 15% 8%)',
 					'surface': 'hsl(220 15% 10%)',
 					'border': 'hsl(220 15% 20%)',
@@ -88,7 +88,10 @@ export default {
 					'success': 'hsl(142 76% 36%)',
 					'warning': 'hsl(38 92% 50%)',
 					'error': 'hsl(0 84% 60%)'
-				}
+				},
+				// Cores diretas para facilitar uso
+				'blue-scriptoryum': '#0F4C81',
+				'gold-scriptoryum': '#D4AF37'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

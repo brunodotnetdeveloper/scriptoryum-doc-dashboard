@@ -48,10 +48,10 @@ export const Header: React.FC<HeaderProps> = ({ toggleSidebar, isMobile, isSideb
           </Button>
         )}
         <div className="flex items-center">
-          <BookOpen className="h-7 w-7 text-amber-500 mr-2" />
+          <BookOpen style={{color: '#D4AF37'}} className="h-7 w-7 mr-2" />
           <h1 className="text-2xl font-bold font-sans">
-            <span className="text-amber-500">Script</span>
-            <span className="text-foreground">oryum</span>
+            <span style={{color: '#D4AF37'}}>Script</span>
+            <span style={{color: '#0F4C81'}}>oryum</span>
           </h1>
         </div>
         <div className="ml-3 px-3 py-1 bg-primary/10 rounded-lg border border-primary/20">

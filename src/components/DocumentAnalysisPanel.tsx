@@ -46,7 +46,7 @@ export const DocumentAnalysisPanel: React.FC<DocumentAnalysisPanelProps> = ({
       title: 'Resumo Executivo',
       description: 'Gerar um resumo conciso do documento',
       icon: FileText,
-      color: 'text-blue-500',
+      color: 'text-blue-scriptoryum',
     },
     {
       id: 'entities',
@@ -67,7 +67,7 @@ export const DocumentAnalysisPanel: React.FC<DocumentAnalysisPanelProps> = ({
       title: 'Insights Estratégicos',
       description: 'Extrair insights e recomendações',
       icon: Lightbulb,
-      color: 'text-yellow-500',
+      color: 'text-gold-scriptoryum',
     },
     {
       id: 'timeline',

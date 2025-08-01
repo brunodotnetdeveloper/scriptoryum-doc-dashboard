@@ -34,27 +34,30 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/5 flex items-center justify-center p-4 font-sans">
       <div className="w-full max-w-md space-y-6">
         {/* Logo e título */}
-        <div className="text-center space-y-2">
-          <h1 className="text-3xl font-bold text-foreground">Scriptoryum</h1>
-          <p className="text-muted-foreground">Análise Inteligente de Documentos com IA</p>
+        <div className="text-center space-y-3">         
+          <h1 className="text-2xl font-bold font-sans">
+            <span style={{color: '#D4AF37'}}>Script</span>
+            <span style={{color: '#0F4C81'}}>oryum</span>
+          </h1>
+          <p className="text-muted-foreground font-medium">Análise Inteligente de Documentos com IA</p>
         </div>
 
-        <Card className="bg-card border-border shadow-xl">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl text-center text-card-foreground">
+        <Card className="bg-card/95 backdrop-blur-sm border-border/50 shadow-2xl shadow-primary/5">
+          <CardHeader className="space-y-2 pb-6">
+            <CardTitle className="text-2xl text-center text-card-foreground font-semibold">
               Entrar na sua conta
             </CardTitle>
             <CardDescription className="text-center text-muted-foreground">
               Digite seu email e senha para acessar o painel
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+          <CardContent className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-foreground">
+                <Label htmlFor="email" className="text-foreground font-medium">
                   Email
                 </Label>
                 <Input
@@ -64,12 +67,12 @@ export const Login: React.FC = () => {
                   value={formData.email}
                   onChange={handleChange}
                   required
-                  className="bg-input border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
+                  className="bg-input border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 focus:ring-2 transition-all duration-200"
                   placeholder="seu@email.com"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-foreground">
+                <Label htmlFor="password" className="text-foreground font-medium">
                   Senha
                 </Label>
                 <Input
@@ -79,7 +82,7 @@ export const Login: React.FC = () => {
                   value={formData.password}
                   onChange={handleChange}
                   required
-                  className="bg-input border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
+                  className="bg-input border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary/20 focus:ring-2 transition-all duration-200"
                   placeholder="Sua senha"
                 />
               </div>
@@ -90,7 +93,7 @@ export const Login: React.FC = () => {
                   type="checkbox"
                   checked={formData.rememberMe}
                   onChange={handleChange}
-                  className="rounded border-border bg-input text-primary focus:ring-primary"
+                  className="rounded border-border bg-input text-primary focus:ring-primary/20 focus:ring-2 transition-all duration-200"
                 />
                 <Label htmlFor="rememberMe" className="text-sm text-muted-foreground">
                   Lembrar de mim
@@ -99,7 +102,7 @@ export const Login: React.FC = () => {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground font-medium py-2 px-4 rounded-md transition-colors"
+                className="w-full bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary/80 text-primary-foreground font-semibold py-3 px-4 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl hover:shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {isLoading ? (
                   <>
@@ -117,7 +120,7 @@ export const Login: React.FC = () => {
         <div className="text-center">
           <p className="text-muted-foreground text-sm">
             Não tem uma conta?{' '}
-            <a href="/register" className="text-primary hover:underline">
+            <a href="/register" className="text-primary hover:text-accent font-medium hover:underline transition-colors duration-200">
               Criar conta
             </a>
           </p>

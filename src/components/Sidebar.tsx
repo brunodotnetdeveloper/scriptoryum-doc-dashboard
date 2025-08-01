@@ -64,10 +64,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, isMobile, onClose }) =
               onClick={isMobile ? onClose : undefined}
               className={cn(
                 'flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-all duration-200',
-                'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
+                'hover:bg-gold-scriptoryum/10 hover:text-gold-scriptoryum',
                 isActive
-                  ? 'bg-primary text-primary-foreground shadow-lg ring-2 ring-primary/20'
-                  : 'text-sidebar-foreground/80 hover:text-sidebar-foreground'
+                  ? 'bg-gold-scriptoryum text-white shadow-lg ring-2 ring-gold-scriptoryum/20'
+                  : 'text-sidebar-foreground/80'
               )}
             >
               <Icon className="mr-3 h-5 w-5" />

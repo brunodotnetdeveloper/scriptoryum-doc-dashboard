@@ -24,14 +24,14 @@ const PROVIDER_INFO = {
     name: 'Anthropic Claude',
     description: 'Claude 3.5 Sonnet, Haiku e outros modelos da Anthropic',
     icon: '🧠',
-    color: 'bg-orange-500',
+    color: 'bg-gold-scriptoryum',
     website: 'https://console.anthropic.com/'
   },
   gemini: {
     name: 'Google Gemini',
     description: 'Gemini 1.5 Pro, Flash e outros modelos do Google',
     icon: '💎',
-    color: 'bg-blue-500',
+    color: 'bg-blue-scriptoryum',
     website: 'https://aistudio.google.com/app/apikey'
   }
 };

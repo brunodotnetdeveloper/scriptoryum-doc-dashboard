@@ -7,12 +7,14 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { Layout } from "@/components/Layout";
 import { Login } from "@/pages/Login";
+import Register from "@/pages/Register";
 import { Dashboard } from "@/pages/Dashboard";
 import { UploadPage } from "@/pages/UploadPage";
-import { DocumentsPage } from "@/pages/DocumentsPage";
+import DocumentsPage from "@/pages/DocumentsPage";
 import { EscribaPage } from "@/pages/EscribaPage";
 import { AIConfigPage } from "@/pages/AIConfigPage";
 import NotFound from "./pages/NotFound";
+import { FloatingChatWidget } from "@/components/FloatingChatWidget";
 import { Loader2 } from "lucide-react";
 
 const queryClient = new QueryClient();
@@ -36,7 +38,18 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
     return <Navigate to="/login" replace />;
   }
 
-  return <Layout>{children}</Layout>;
+  return (
+    <>
+      <Layout>{children}</Layout>
+      <FloatingChatWidget 
+        position="bottom-right"
+        variant="dialog"
+        size="md"
+        showBadge={true}
+        badgeText="Escriba AI"
+      />
+    </>
+  );
 };
 
 // Componente para redirecionar usuários autenticados para o dashboard
@@ -64,12 +77,20 @@ const PublicRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 const AppRoutes = () => {
   return (
     <Routes>
-      {/* Rota pública - Login */}
+      {/* Rotas públicas - Login e Registro */}
       <Route 
         path="/login" 
         element={
           <PublicRoute>
             <Login />
+          </PublicRoute>
+        } 
+      />
+      <Route 
+        path="/register" 
+        element={
+          <PublicRoute>
+            <Register />
           </PublicRoute>
         } 
       />

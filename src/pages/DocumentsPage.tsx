@@ -6,19 +6,19 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { accountService, documentsService } from '@/services';
 import { toast } from '@/hooks/use-toast';
-import { File, Search, Download, Eye, Trash2, Loader2, RefreshCw, Brain } from 'lucide-react';
-import { Document } from '@/types/api';
-import { DocumentDetailsModal } from '@/components/DocumentDetailsModal';
+import { File, Search, Download, Eye, Trash2, Loader2, RefreshCw, Brain, ArrowLeft } from 'lucide-react';
+import { Document, DocumentDetails } from '@/types/api';
+import { DocumentDetailsView } from '@/components/DocumentDetailsView';
 
-
-
-export const DocumentsPage: React.FC = () => {
+const DocumentsPage: React.FC = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [filteredDocuments, setFilteredDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedDocumentId, setSelectedDocumentId] = useState<number | null>(null);
+  const [showDetails, setShowDetails] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [documentDetails, setDocumentDetails] = useState<DocumentDetails | null>(null);
+  const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [analyzingDocuments, setAnalyzingDocuments] = useState<Set<number>>(new Set());
 
   useEffect(() => {
@@ -173,9 +173,30 @@ export const DocumentsPage: React.FC = () => {
     }
   };
 
-  const handleViewDocument = (document: Document) => {
-    setSelectedDocumentId(document.id);
-    setIsModalOpen(true);
+  const handleViewDocument = async (document: Document) => {
+    setSelectedDocument(document);
+    setIsLoadingDetails(true);
+    setShowDetails(true);
+    
+    try {
+      const details = await fetchDocumentDetails(document.id);
+      setDocumentDetails(details);
+    } catch (error) {
+      console.error('Error loading document details:', error);
+      toast({
+        title: "Erro ao carregar detalhes",
+        description: "Não foi possível carregar os detalhes do documento.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoadingDetails(false);
+    }
+  };
+
+  const handleBackToList = () => {
+    setShowDetails(false);
+    setSelectedDocument(null);
+    setDocumentDetails(null);
   };
 
   const handleDownloadDocument = async (document: any) => {
@@ -271,6 +292,60 @@ export const DocumentsPage: React.FC = () => {
            !analyzingDocuments.has(document.id);
   };
 
+  // Renderização condicional baseada no estado showDetails
+  if (showDetails && selectedDocument) {
+    return (
+      <div className="space-y-6">
+        {/* Header dos Detalhes */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleBackToList}
+              className="text-muted-foreground hover:text-primary hover:bg-primary/10"
+            >
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Voltar para Lista
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">
+                {selectedDocument.originalFileName}
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Detalhes e análise do documento
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center space-x-2">
+            {getStatusBadge(selectedDocument.status)}
+          </div>
+        </div>
+
+        {/* Conteúdo dos Detalhes */}
+        {isLoadingDetails ? (
+          <Card className="bg-card border-border">
+            <CardContent className="flex items-center justify-center py-12">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </CardContent>
+          </Card>
+        ) : documentDetails ? (
+          <DocumentDetailsView
+            document={selectedDocument}
+            details={documentDetails}
+            onDownloadDocument={handleDownloadDocument}
+          />
+        ) : (
+          <Card className="bg-card border-border">
+            <CardContent className="text-center py-12">
+              <p className="text-muted-foreground">Erro ao carregar detalhes do documento.</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -357,14 +432,6 @@ export const DocumentsPage: React.FC = () => {
                         {document.description}
                       </p>
                     )}
-
-              <DocumentDetailsModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                documentId={selectedDocumentId}
-                fetchDetails={fetchDocumentDetails}
-                onDownloadDocument={handleDownloadDocument}
-              />
                     
                     <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                       <span>{formatFileSize(document.fileSize)}</span>
@@ -459,3 +526,5 @@ export const DocumentsPage: React.FC = () => {
     </div>
   );
 };
+
+export default DocumentsPage;
