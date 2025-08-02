@@ -26,8 +26,8 @@ const menuItems = [
     icon: FileText,
   },
   {
-    name: 'Configurações IA',
-    path: '/ai-config',
+    name: 'Configurações',
+    path: '/settings',
     icon: Settings,
   },
 ];

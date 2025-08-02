@@ -87,24 +87,28 @@ const DocumentsPage: React.FC = () => {
     const statusConfig = {
       Processed: {
         label: 'Texto extraído',
-        className: 'bg-success/10 text-success border-success/20',
+        className: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+      },
+      Analyzed: {
+        label: 'Analisado',
+        className: 'bg-blue-100 text-blue-700 border-blue-200',
       },
       Processing: undefined,
       Uploaded: {
         label: 'Carregado',
-        className: 'bg-info/10 text-info border-info/20',
+        className: 'bg-slate-100 text-slate-600 border-slate-200',
       },
       Queued: {
         label: 'Na Fila',
-        className: 'bg-primary/10 text-primary border-primary/20',
+        className: 'bg-indigo-100 text-indigo-600 border-indigo-200',
       },
       ExtractingText: {
         label: 'Extraindo Texto',
-        className: 'bg-warning/10 text-warning border-warning/20',
+        className: 'bg-amber-100 text-amber-700 border-amber-200',
       },
       AnalyzingContent: {
         label: 'Analisando Conteúdo',
-        className: 'bg-primary/10 text-primary border-primary/20',
+        className: 'bg-purple-100 text-purple-700 border-purple-200',
       },
       Failed: {
         label: 'Falha',
@@ -120,11 +124,11 @@ const DocumentsPage: React.FC = () => {
       },
       Cancelled: {
         label: 'Cancelado',
-        className: 'bg-muted text-muted-foreground border-border',
+        className: 'bg-gray-100 text-gray-500 border-gray-200',
       },
       PartiallyProcessed: {
         label: 'Parcialmente Processado',
-        className: 'bg-warning/10 text-warning border-warning/20',
+        className: 'bg-orange-100 text-orange-700 border-orange-200',
       },
       EntitiesExtractionFailed: {
         label: 'Falha Extração Entidades',
@@ -284,7 +288,7 @@ const DocumentsPage: React.FC = () => {
     // 1. Está processado (texto extraído)
     // 2. Não está sendo analisado atualmente
     // 3. Não está em um estado de análise já
-    const analyzableStatuses = ['Processed'];
+    const analyzableStatuses = ['Processed', 'Analyzed'];
     const nonAnalyzableStatuses = ['AnalyzingContent', 'ContentAnalysisFailed'];
     
     return analyzableStatuses.includes(document.status) && 
@@ -362,7 +366,7 @@ const DocumentsPage: React.FC = () => {
               {filteredDocuments.length} documento{filteredDocuments.length !== 1 ? 's' : ''}
             </p>
             <p className="text-sm text-muted-foreground">
-              {documents.filter(d => d.status === 'Processed').length} processado{documents.filter(d => d.status === 'Processed').length !== 1 ? 's' : ''}
+              {documents.filter(d => d.status === 'Processed' || d.status === 'Analyzed').length} processado{documents.filter(d => d.status === 'Processed' || d.status === 'Analyzed').length !== 1 ? 's' : ''}
             </p>
           </div>
           <Button
@@ -481,7 +485,7 @@ const DocumentsPage: React.FC = () => {
                       onClick={() => handleDownloadDocument(document)}
                       className="text-muted-foreground hover:text-info hover:bg-info/10"
                       title="Download"
-                      disabled={document.status !== 'Processed'}
+                      disabled={document.status !== 'Processed' && document.status !== 'Analyzed'}
                     >
                       <Download className="h-4 w-4" />
                     </Button>

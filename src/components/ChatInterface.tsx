@@ -120,10 +120,10 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                 <div
                   key={message.id}
                   className={`flex gap-3 ${
-                    message.role === 'user' ? 'justify-end' : 'justify-start'
+                    message.role === 0 ? 'justify-end' : 'justify-start'
                   }`}
                 >
-                  {message.role === 'assistant' && (
+                  {message.role === 1 && (
                     <Avatar className="h-8 w-8 mt-1">
                       <AvatarFallback className="bg-primary text-primary-foreground">
                         <Bot className="h-4 w-4" />
@@ -133,7 +133,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                   
                   <div
                     className={`max-w-[80%] rounded-lg p-3 ${
-                      message.role === 'user'
+                      message.role === 1
                         ? 'bg-primary text-primary-foreground'
                         : 'bg-muted'
                     }`}
@@ -144,7 +144,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                     
                     <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/20">
                       <span className="text-xs opacity-70">
-                        {formatTime(message.timestamp)}
+                        {formatTime(new Date(message.createdAt))}
                       </span>
                       <Button
                         onClick={() => copyMessage(message.content)}
@@ -166,7 +166,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
                     )}
                   </div>
                   
-                  {message.role === 'user' && (
+                  {message.role === 0 && (
                     <Avatar className="h-8 w-8 mt-1">
                       <AvatarFallback className="bg-secondary">
                         <User className="h-4 w-4" />

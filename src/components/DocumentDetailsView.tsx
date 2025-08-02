@@ -193,12 +193,21 @@ export const DocumentDetailsView: React.FC<DocumentDetailsViewProps> = ({
 
       {/* Conteúdo do Documento */}
       <Tabs defaultValue="content" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-muted">
+        <TabsList className="grid w-full grid-cols-6 bg-muted">
           <TabsTrigger value="content" className="data-[state=active]:bg-background data-[state=active]:text-foreground">
             Conteúdo
           </TabsTrigger>
-          <TabsTrigger value="analysis" className="data-[state=active]:bg-background data-[state=active]:text-foreground">
-            Análise
+          <TabsTrigger value="entities" className="data-[state=active]:bg-background data-[state=active]:text-foreground">
+            Entidades
+          </TabsTrigger>
+          <TabsTrigger value="risks" className="data-[state=active]:bg-background data-[state=active]:text-foreground">
+            Riscos
+          </TabsTrigger>
+          <TabsTrigger value="insights" className="data-[state=active]:bg-background data-[state=active]:text-foreground">
+            Insights
+          </TabsTrigger>
+          <TabsTrigger value="timeline" className="data-[state=active]:bg-background data-[state=active]:text-foreground">
+            Timeline
           </TabsTrigger>
           <TabsTrigger value="metadata" className="data-[state=active]:bg-background data-[state=active]:text-foreground">
             Metadados
@@ -220,19 +229,49 @@ export const DocumentDetailsView: React.FC<DocumentDetailsViewProps> = ({
           </Card>
         </TabsContent>
 
-        <TabsContent value="analysis" className="mt-4">
+        <TabsContent value="entities" className="mt-4">
           <Card className="bg-card border-border">
             <CardHeader>
-              <CardTitle className="text-card-foreground">Resultado da Análise</CardTitle>
+              <CardTitle className="text-card-foreground">Entidades Extraídas</CardTitle>
             </CardHeader>
             <CardContent>
-              {details.insights && details.insights.length > 0 ? (
+              {details.extractedEntities && details.extractedEntities.length > 0 ? (
                 <ScrollArea className="h-96 w-full rounded-md border border-border p-4">
-                  <div className="space-y-4">
-                    {details.insights.map((insight, index) => (
-                      <div key={index} className="border-b border-border pb-2 last:border-b-0">
-                        <h4 className="font-medium text-foreground">{insight.title}</h4>
-                        <p className="text-sm text-muted-foreground mt-1">{insight.description}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {details.extractedEntities.map((entity, index) => (
+                      <Badge key={index} variant="secondary" className="bg-secondary text-secondary-foreground">
+                        {entity.value} (Tipo: {entity.entityTypeText}, Score: {(entity.confidenceScore * 100).toFixed(2)}%)
+                      </Badge>
+                    ))}
+                  </div>
+                </ScrollArea>
+              ) : (
+                <div className="text-center py-8">
+                  <Brain className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">
+                    {details.status === 'AnalyzingContent' 
+                      ? 'Análise em andamento...' 
+                      : 'Nenhuma entidade extraída disponível.'}
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="risks" className="mt-4">
+          <Card className="bg-card border-border">
+            <CardHeader>
+              <CardTitle className="text-card-foreground">Riscos Detectados</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {details.risksDetected && details.risksDetected.length > 0 ? (
+                <ScrollArea className="h-96 w-full rounded-md border border-border p-4">
+                  <div className="space-y-3">
+                    {details.risksDetected.map((risk, index) => (
+                      <div key={index} className="p-3 rounded-md bg-destructive/10 border border-destructive/20">
+                        <p className="font-medium text-destructive">{risk.description}</p>
+                        <p className="text-xs text-destructive/80 mt-1">Tipo: {risk.type} | Severidade: {risk.severity} (Nível: {risk.riskLevel})</p>
                       </div>
                     ))}
                   </div>
@@ -243,7 +282,74 @@ export const DocumentDetailsView: React.FC<DocumentDetailsViewProps> = ({
                   <p className="text-muted-foreground">
                     {details.status === 'AnalyzingContent' 
                       ? 'Análise em andamento...' 
-                      : 'Nenhuma análise disponível. Clique em "Analisar Documento" para começar.'}
+                      : 'Nenhum risco detectado.'}
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="insights" className="mt-4">
+          <Card className="bg-card border-border">
+            <CardHeader>
+              <CardTitle className="text-card-foreground">Insights</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {details.insights && details.insights.length > 0 ? (
+                <ScrollArea className="h-96 w-full rounded-md border border-border p-4">
+                  <div className="space-y-3">
+                    {details.insights.map((insight, index) => (
+                      <div key={index} className="p-3 rounded-md bg-info/10 border border-info/20">
+                        <p className="font-medium text-info">{insight.title}</p>
+                        <p className="text-xs text-info/80 mb-2">Categoria: {insight.categoryText}</p>
+                        <p className="text-sm text-info/80">{insight.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
+              ) : (
+                <div className="text-center py-8">
+                  <Brain className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">
+                    {details.status === 'AnalyzingContent' 
+                      ? 'Análise em andamento...' 
+                      : 'Nenhum insight gerado.'}
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="timeline" className="mt-4">
+          <Card className="bg-card border-border">
+            <CardHeader>
+              <CardTitle className="text-card-foreground">Eventos da Linha do Tempo</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {details.timelineEvents && details.timelineEvents.length > 0 ? (
+                <ScrollArea className="h-96 w-full rounded-md border border-border p-4">
+                  <ol className="relative border-l border-border ml-4">
+                    {details.timelineEvents.map((event, index) => (
+                      <li key={index} className="mb-6 ml-6">
+                        <span className="absolute flex items-center justify-center w-3 h-3 bg-primary rounded-full -left-1.5 ring-8 ring-background"></span>
+                        <h4 className="font-semibold text-foreground">{event.title}</h4>
+                        <time className="block mb-2 text-xs font-normal leading-none text-muted-foreground">
+                          {new Date(event.timestamp).toLocaleString('pt-BR')}
+                        </time>
+                        <p className="text-sm text-muted-foreground">{event.description}</p>
+                      </li>
+                    ))}
+                  </ol>
+                </ScrollArea>
+              ) : (
+                <div className="text-center py-8">
+                  <Brain className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <p className="text-muted-foreground">
+                    {details.status === 'AnalyzingContent' 
+                      ? 'Análise em andamento...' 
+                      : 'Nenhum evento na linha do tempo.'}
                   </p>
                 </div>
               )}
@@ -269,23 +375,15 @@ export const DocumentDetailsView: React.FC<DocumentDetailsViewProps> = ({
                       {details.originalFileName.split('.').pop()?.toUpperCase() || 'N/A'}
                     </p>
                   </div>
-                </div>
-                
-                {details.extractedEntities && details.extractedEntities.length > 0 && (
                   <div>
-                    <p className="text-sm font-medium text-foreground mb-2">Entidades Extraídas</p>
-                    <ScrollArea className="h-32 w-full rounded-md border border-border p-4">
-                      <div className="space-y-2">
-                        {details.extractedEntities.map((entity, index) => (
-                          <div key={index} className="flex justify-between items-center">
-                            <span className="text-sm text-foreground">{entity.value}</span>
-                            <span className="text-xs text-muted-foreground">{entity.entityTypeText}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </ScrollArea>
+                    <p className="text-sm font-medium text-foreground">Status</p>
+                    <p className="text-sm text-muted-foreground">{details.status || 'N/A'}</p>
                   </div>
-                )}
+                  <div>
+                    <p className="text-sm font-medium text-foreground">Usuário</p>
+                    <p className="text-sm text-muted-foreground">{details.uploadedByUserId || 'N/A'}</p>
+                  </div>
+                </div>
               </div>
             </CardContent>
           </Card>

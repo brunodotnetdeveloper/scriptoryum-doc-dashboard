@@ -108,7 +108,7 @@ export const DocumentDetailsModal: React.FC<DocumentDetailsModalProps> = ({
                 <Download className="mr-2 h-4 w-4" /> Baixar Documento
               </Button>
             )}
-            {details?.status === 'Processed' && !isLoading && (
+            {(details?.status === 'Processed' || details?.status === 'Analyzed') && !isLoading && (
               <Button
                 variant="secondary"
                 className="bg-primary text-primary-foreground hover:bg-primary/90"
@@ -123,7 +123,7 @@ export const DocumentDetailsModal: React.FC<DocumentDetailsModalProps> = ({
                 {isAnalyzing ? 'Iniciando Análise...' : 'Analisar com Escriba'}
               </Button>
             )}
-            {(details?.status === 'Processed' || details?.status === 'ContentAnalysisFailed' || details?.status === 'PartiallyProcessed' || details?.status === 'EntitiesExtractionFailed' || details?.status === 'RisksAnalysisFailed' || details?.status === 'InsightsGenerationFailed') && !isLoading && (
+            {(details?.status === 'Processed' || details?.status === 'Analyzed' || details?.status === 'ContentAnalysisFailed' || details?.status === 'PartiallyProcessed' || details?.status === 'EntitiesExtractionFailed' || details?.status === 'RisksAnalysisFailed' || details?.status === 'InsightsGenerationFailed') && !isLoading && (
               <Button
                 variant="outline"
                 className="border-border text-foreground hover:bg-accent"

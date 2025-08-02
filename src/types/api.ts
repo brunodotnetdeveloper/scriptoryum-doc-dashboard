@@ -54,6 +54,7 @@ export type DocumentStatus =
   | 'ExtractingText'
   | 'AnalyzingContent'
   | 'Processed'
+  | 'Analyzed'
   | 'TextExtractionFailed'
   | 'ContentAnalysisFailed'
   | 'Failed'

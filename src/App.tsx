@@ -13,6 +13,7 @@ import { UploadPage } from "@/pages/UploadPage";
 import DocumentsPage from "@/pages/DocumentsPage";
 import { EscribaPage } from "@/pages/EscribaPage";
 import { AIConfigPage } from "@/pages/AIConfigPage";
+import { SettingsPage } from "@/pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 import { FloatingChatWidget } from "@/components/FloatingChatWidget";
 import { Loader2 } from "lucide-react";
@@ -131,6 +132,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <EscribaPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/settings" 
+        element={
+          <ProtectedRoute>
+            <SettingsPage />
           </ProtectedRoute>
         } 
       />

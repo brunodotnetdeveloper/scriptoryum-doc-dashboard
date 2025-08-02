@@ -2,19 +2,31 @@ import { API_BASE_URL, BaseService } from './base.service';
 
 export interface ChatMessage {
   id: string;
-  role: 'user' | 'assistant';
-  content: string;
-  timestamp: Date;
-  documentId?: number;
-  documentName?: string;
+  chatSessionId: number | null;
+  role: number | null;
+  content: string | null;
+  documentId: number | null;
+  documentName: string | null;
+  tokenCount: number | null;
+  cost: number | null;
+  aiProvider: number | null;
+  modelUsed: string | null;
+  responseTimeMs: number | null;
+  createdAt: Date | null;
 }
 
 export interface ChatSession {
-  id: string;
+  id: number;
+  userId: string;
   title: string;
+  description: string | null;
+  documentId: number | null;
+  documentName: string | null;
+  messageCount: number;
+  lastActivityAt: string;
+  createdAt: string;
+  updatedAt: string;
   messages: ChatMessage[];
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface SendMessageRequest {
@@ -47,7 +59,8 @@ class EscribaService extends BaseService {
       method: 'GET',
       headers: this.getAuthHeaders(),
     });
-    return this.handleResponse<ChatSession[]>(response);
+    const data = await this.handleResponse<{ success: boolean; message: string; sessions: ChatSession[] }>(response);
+    return data.sessions || [];
   }
 
   async createChatSession(title?: string): Promise<ChatSession> {
@@ -56,7 +69,8 @@ class EscribaService extends BaseService {
       headers: this.getAuthHeaders(),
       body: JSON.stringify({ title: title || 'Nova Conversa' }),
     });
-    return this.handleResponse<ChatSession>(response);
+    const data = await this.handleResponse<{ success: boolean; message: string; session: ChatSession }>(response);
+    return data.session;
   }
 
   async getChatSession(sessionId: string): Promise<ChatSession> {
@@ -64,7 +78,8 @@ class EscribaService extends BaseService {
       method: 'GET',
       headers: this.getAuthHeaders(),
     });
-    return this.handleResponse<ChatSession>(response);
+    const data = await this.handleResponse<{ success: boolean; message: string; session: ChatSession }>(response);
+    return data.session;
   }
 
   async deleteChatSession(sessionId: string): Promise<void> {

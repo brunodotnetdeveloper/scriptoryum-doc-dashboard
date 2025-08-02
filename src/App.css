@@ -54,20 +54,62 @@ code {
   }
 }
 
-/* Estilo para documentos processados */
+/* Estilos específicos para cada status de documento */
 .document-status-processed {
-  background: hsl(var(--success) / 0.1);
-  color: hsl(var(--success));
-  border: 1px solid hsl(var(--success) / 0.2);
+  background: rgb(209 250 229); /* emerald-100 */
+  color: rgb(4 120 87); /* emerald-700 */
+  border: 1px solid rgb(167 243 208); /* emerald-200 */
 }
 
-.document-status-processing {
-  background: hsl(var(--warning) / 0.1);
-  color: hsl(var(--warning));
-  border: 1px solid hsl(var(--warning) / 0.2);
+.document-status-analyzed {
+  background: rgb(219 234 254); /* blue-100 */
+  color: rgb(29 78 216); /* blue-700 */
+  border: 1px solid rgb(191 219 254); /* blue-200 */
 }
 
-.document-status-error {
+.document-status-uploaded {
+  background: rgb(248 250 252); /* slate-100 */
+  color: rgb(71 85 105); /* slate-600 */
+  border: 1px solid rgb(226 232 240); /* slate-200 */
+}
+
+.document-status-queued {
+  background: rgb(224 231 255); /* indigo-100 */
+  color: rgb(67 56 202); /* indigo-600 */
+  border: 1px solid rgb(199 210 254); /* indigo-200 */
+}
+
+.document-status-extractingtext {
+  background: rgb(254 243 199); /* amber-100 */
+  color: rgb(180 83 9); /* amber-700 */
+  border: 1px solid rgb(253 230 138); /* amber-200 */
+}
+
+.document-status-analyzingcontent {
+  background: rgb(243 232 255); /* purple-100 */
+  color: rgb(126 34 206); /* purple-700 */
+  border: 1px solid rgb(221 214 254); /* purple-200 */
+}
+
+.document-status-partiallyprocessed {
+  background: rgb(255 237 213); /* orange-100 */
+  color: rgb(194 65 12); /* orange-700 */
+  border: 1px solid rgb(254 215 170); /* orange-200 */
+}
+
+.document-status-cancelled {
+  background: rgb(249 250 251); /* gray-100 */
+  color: rgb(107 114 128); /* gray-500 */
+  border: 1px solid rgb(229 231 235); /* gray-200 */
+}
+
+.document-status-error,
+.document-status-failed,
+.document-status-textextractionfailed,
+.document-status-contentanalysisfailed,
+.document-status-entitiesextractionfailed,
+.document-status-risksanalysisfailed,
+.document-status-insightsgenerationfailed {
   background: hsl(var(--destructive) / 0.1);
   color: hsl(var(--destructive));
   border: 1px solid hsl(var(--destructive) / 0.2);

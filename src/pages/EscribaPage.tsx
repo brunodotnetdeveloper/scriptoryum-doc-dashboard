@@ -145,7 +145,7 @@ export const EscribaPage: React.FC = () => {
   const selectSession = async (session: ChatSession) => {
     try {
       setIsLoading(true);
-      const sessionData = await escribaService.getChatSession(session.id);
+      const sessionData = await escribaService.getChatSession(session.id.toString());
       setCurrentSession(sessionData);
       setMessages(Array.isArray(sessionData?.messages) ? sessionData.messages : []);
     } catch (error) {
@@ -160,9 +160,9 @@ export const EscribaPage: React.FC = () => {
     }
   };
 
-  const deleteSession = async (sessionId: string) => {
+  const deleteSession = async (sessionId: number) => {
     try {
-      await escribaService.deleteChatSession(sessionId);
+      await escribaService.deleteChatSession(sessionId.toString());
       setSessions(prev => Array.isArray(prev) ? prev.filter(s => s.id !== sessionId) : []);
       
       if (currentSession?.id === sessionId) {
@@ -193,11 +193,17 @@ export const EscribaPage: React.FC = () => {
 
     const userMessage: ChatMessage = {
       id: Date.now().toString(),
-      role: 'user',
+      role: 0,
       content: inputMessage.trim(),
-      timestamp: new Date(),
+      createdAt: new Date(),
       documentId: selectedDocument?.id,
       documentName: selectedDocument?.originalFileName,
+      chatSessionId: 0,
+      tokenCount: 0,
+      cost: 0,
+      aiProvider: 0,
+      modelUsed: '',
+      responseTimeMs: 0
     };
 
     setMessages(prev => Array.isArray(prev) ? [...prev, userMessage] : [userMessage]);
@@ -207,16 +213,24 @@ export const EscribaPage: React.FC = () => {
     try {
       const response = await escribaService.sendMessage({
         message: userMessage.content,
-        sessionId: currentSession.id,
+        sessionId: currentSession.id.toString(),
         documentId: selectedDocument?.id,
         context: documentContext?.content,
       });
 
       const assistantMessage: ChatMessage = {
         id: response.messageId,
-        role: 'assistant',
+        role: 1,
         content: response.response,
-        timestamp: new Date(),
+        createdAt: new Date(),
+        chatSessionId: 0,
+        documentId: 0,
+        documentName: '',
+        tokenCount: 0,
+        cost: 0,
+        aiProvider: 0,
+        modelUsed: '',
+        responseTimeMs: 0
       };
 
       setMessages(prev => Array.isArray(prev) ? [...prev, assistantMessage] : [assistantMessage]);
@@ -461,10 +475,10 @@ export const EscribaPage: React.FC = () => {
                     <div
                       key={message.id}
                       className={`flex gap-3 ${
-                        message.role === 'user' ? 'justify-end' : 'justify-start'
+                        message.role === 0 ? 'justify-end' : 'justify-start'
                       }`}
                     >
-                      {message.role === 'assistant' && (
+                      {message.role === 1 && (
                         <Avatar className="h-8 w-8 mt-1">
                           <AvatarFallback className="bg-primary text-primary-foreground">
                             <Bot className="h-4 w-4" />
@@ -474,7 +488,7 @@ export const EscribaPage: React.FC = () => {
                       
                       <div
                         className={`max-w-[80%] rounded-lg p-3 ${
-                          message.role === 'user'
+                          message.role === 0  
                             ? 'bg-primary text-primary-foreground'
                             : 'bg-muted'
                         }`}
@@ -485,7 +499,7 @@ export const EscribaPage: React.FC = () => {
                         
                         <div className="flex items-center justify-between mt-2 pt-2 border-t border-border/20">
                           <span className="text-xs opacity-70">
-                            {formatTime(message.timestamp)}
+                            {formatTime(new Date(message.createdAt))}
                           </span>
                           <Button
                             onClick={() => copyMessage(message.content)}
@@ -507,7 +521,7 @@ export const EscribaPage: React.FC = () => {
                         )}
                       </div>
                       
-                      {message.role === 'user' && (
+                      {message.role === 0 && (
                         <Avatar className="h-8 w-8 mt-1">
                           <AvatarFallback className="bg-secondary">
                             <User className="h-4 w-4" />

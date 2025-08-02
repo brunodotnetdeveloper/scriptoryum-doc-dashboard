@@ -38,7 +38,7 @@ export const Dashboard: React.FC = () => {
         }).length;
         
         const processingDocuments = documents.filter(doc => doc.status === 'ExtractingText').length;
-        const completedDocuments = documents.filter(doc => doc.status === 'Processed').length;
+        const completedDocuments = documents.filter(doc => doc.status === 'Processed' || doc.status === 'Analyzed').length;
 
         setStats({
           totalDocuments,
@@ -66,6 +66,8 @@ export const Dashboard: React.FC = () => {
     switch (status) {
       case 'Processed':
         return 'Texto Extraído';
+      case 'Analyzed':
+        return 'Analisado';
       case 'Uploaded':
         return 'Carregado';
       case 'Queued':
@@ -212,10 +214,22 @@ export const Dashboard: React.FC = () => {
                     </div>
                     <div className="flex-shrink-0">
                       <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                        doc.status === 'Processed' 
-                          ? 'bg-success/10 text-success border border-success/20' 
-                          : doc.status === 'ExtractingText' || doc.status === 'Queued' || doc.status === 'AnalyzingContent' || doc.status === 'Uploaded'
-                          ? 'bg-warning/10 text-warning border border-warning/20'
+                        doc.status === 'Processed'
+                          ? 'bg-emerald-100 text-emerald-700 border border-emerald-200'
+                          : doc.status === 'Analyzed'
+                          ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                          : doc.status === 'ExtractingText'
+                          ? 'bg-amber-100 text-amber-700 border border-amber-200'
+                          : doc.status === 'AnalyzingContent'
+                          ? 'bg-purple-100 text-purple-700 border border-purple-200'
+                          : doc.status === 'Queued'
+                          ? 'bg-indigo-100 text-indigo-600 border border-indigo-200'
+                          : doc.status === 'Uploaded'
+                          ? 'bg-slate-100 text-slate-600 border border-slate-200'
+                          : doc.status === 'PartiallyProcessed'
+                          ? 'bg-orange-100 text-orange-700 border border-orange-200'
+                          : doc.status === 'Cancelled'
+                          ? 'bg-gray-100 text-gray-500 border border-gray-200'
                           : 'bg-destructive/10 text-destructive border border-destructive/20'
                       }`}>
                         {getStatusText(doc.status)}
