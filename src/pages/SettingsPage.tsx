@@ -14,6 +14,7 @@ import { BillingTab } from '@/components/settings/BillingTab';
 import { NotificationsTab } from '@/components/settings/NotificationsTab';
 import { ProfileTab } from '@/components/settings/ProfileTab';
 import { SecurityTab } from '@/components/settings/SecurityTab';
+import { PageBreadcrumb } from '@/components/PageBreadcrumb';
 
 export const SettingsPage: React.FC = () => {
   const { toast } = useToast();
@@ -23,13 +24,9 @@ export const SettingsPage: React.FC = () => {
     <div className="container mx-auto px-4 py-6 max-w-6xl">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-          <Settings className="h-8 w-8 text-primary" />
-          Configurações
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          Gerencie suas preferências, configurações de IA, faturamento e segurança
-        </p>
+        <PageBreadcrumb 
+          customTitle="Configurações"
+        />
       </div>
 
       {/* Tabs */}

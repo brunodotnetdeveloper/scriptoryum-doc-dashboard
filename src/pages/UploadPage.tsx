@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { documentsService } from '@/services';
 import { toast } from '@/hooks/use-toast';
 import { Upload, File, X, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { PageBreadcrumb } from '@/components/PageBreadcrumb';
 
 interface UploadedFile {
   file: File;
@@ -27,15 +28,15 @@ export const UploadPage: React.FC = () => {
 
   const validateFile = (file: File): string | null => {
     const extension = file.name.split('.').pop()?.toLowerCase();
-    
+
     if (!extension || !acceptedFormats.includes(extension)) {
       return `Formato não suportado. Formatos aceitos: ${acceptedFormats.join(', ').toUpperCase()}`;
     }
-    
+
     if (file.size > maxFileSize) {
       return 'Arquivo muito grande. Tamanho máximo: 10MB';
     }
-    
+
     return null;
   };
 
@@ -43,7 +44,7 @@ export const UploadPage: React.FC = () => {
     if (!selectedFiles) return;
 
     const newFiles: UploadedFile[] = [];
-    
+
     Array.from(selectedFiles).forEach(file => {
       const error = validateFile(file);
       if (error) {
@@ -54,7 +55,7 @@ export const UploadPage: React.FC = () => {
         });
         return;
       }
-      
+
       newFiles.push({
         file,
         status: 'uploading',
@@ -62,7 +63,7 @@ export const UploadPage: React.FC = () => {
     });
 
     setFiles(prev => [...prev, ...newFiles]);
-    
+
     // Upload cada arquivo
     newFiles.forEach((uploadFile, index) => {
       uploadDocument(uploadFile, files.length + index);
@@ -72,14 +73,14 @@ export const UploadPage: React.FC = () => {
   const uploadDocument = async (uploadFile: UploadedFile, index: number) => {
     try {
       const response = await documentsService.uploadDocument(uploadFile.file, description);
-      
+
       if (response.success) {
-        setFiles(prev => prev.map((f, i) => 
-          i === index 
+        setFiles(prev => prev.map((f, i) =>
+          i === index
             ? { ...f, status: 'success' as const, documentId: response.documentId }
             : f
         ));
-        
+
         toast({
           title: "Upload realizado com sucesso!",
           description: `${uploadFile.file.name} foi enviado com sucesso.`,
@@ -89,13 +90,13 @@ export const UploadPage: React.FC = () => {
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
-      
-      setFiles(prev => prev.map((f, i) => 
-        i === index 
+
+      setFiles(prev => prev.map((f, i) =>
+        i === index
           ? { ...f, status: 'error' as const, error: errorMessage }
           : f
       ));
-      
+
       toast({
         title: "Erro no upload",
         description: `${uploadFile.file.name}: ${errorMessage}`,
@@ -135,12 +136,8 @@ export const UploadPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-foreground">Upload de Documentos</h1>
-        <p className="text-muted-foreground mt-1">
-          Envie documentos para análise inteligente com IA
-        </p>
-      </div>
+      <PageBreadcrumb
+        customTitle="Upload de Documentos" />
 
       {/* Upload Area */}
       <Card className="bg-card border-border">
@@ -168,11 +165,10 @@ export const UploadPage: React.FC = () => {
 
           {/* Área de Drop */}
           <div
-            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
-              isDragOver
+            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${isDragOver
                 ? 'border-primary bg-primary/10'
                 : 'border-border hover:border-primary/50 hover:bg-accent/50'
-            }`}
+              }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
@@ -223,7 +219,7 @@ export const UploadPage: React.FC = () => {
                   className="flex items-center space-x-3 p-3 bg-muted/50 rounded-lg border border-border/50"
                 >
                   <File className="h-5 w-5 text-primary flex-shrink-0" />
-                  
+
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground truncate">
                       {uploadFile.file.name}
@@ -248,7 +244,7 @@ export const UploadPage: React.FC = () => {
                     {uploadFile.status === 'error' && (
                       <AlertCircle className="h-4 w-4 text-destructive" />
                     )}
-                    
+
                     <Button
                       variant="ghost"
                       size="sm"

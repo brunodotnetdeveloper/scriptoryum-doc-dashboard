@@ -11,6 +11,7 @@ import { toast } from '@/hooks/use-toast';
 import { File, Search, Download, Eye, Trash2, Loader2, RefreshCw, Brain, ArrowLeft, Filter, FileText, FileImage, FileSpreadsheet, FileVideo, FileAudio, Archive } from 'lucide-react';
 import { Document, DocumentDetails } from '@/types/api';
 import { DocumentDetailsView } from '@/components/DocumentDetailsView';
+import { PageBreadcrumb } from '@/components/PageBreadcrumb';
 
 const DocumentsPage: React.FC = () => {
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -420,12 +421,7 @@ const DocumentsPage: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Documentos</h1>
-          <p className="text-muted-foreground mt-1">
-            Gerencie seus documentos enviados para análise
-          </p>
-        </div>
+        <PageBreadcrumb />
         <div className="flex items-center space-x-4">
           <div className="text-right">
             <p className="text-foreground font-medium">

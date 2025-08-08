@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { aiConfigService } from '@/services';
 import { AIConfiguration, AIProvider, AIProviderConfig, AIModel } from '@/types/api';
 import { Settings, Brain, Key, TestTube, Save, CheckCircle, XCircle, Loader2 } from 'lucide-react';
+import { PageBreadcrumb } from '@/components/PageBreadcrumb';
 
 const PROVIDER_INFO = {
   openai: {
@@ -186,15 +187,7 @@ export const AIConfigPage: React.FC = () => {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
-            <Settings className="h-8 w-8 text-primary" />
-            Configurações de IA
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Configure suas API keys e modelos de IA para análise de documentos
-          </p>
-        </div>
+        <PageBreadcrumb customTitle="Configurações de IA" />
         <Button 
           onClick={saveConfiguration} 
           disabled={isSaving}

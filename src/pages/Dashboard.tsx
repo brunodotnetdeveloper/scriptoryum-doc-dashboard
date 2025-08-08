@@ -5,6 +5,7 @@ import { accountService, documentsService } from '@/services';
 import { useAuth } from '@/contexts/AuthContext';
 import { File, Upload, User, FileText } from 'lucide-react';
 import { Document, UserDocumentsResponse } from '@/types/api';
+import { PageBreadcrumb } from '@/components/PageBreadcrumb';
 
 interface DashboardStats {
   totalDocuments: number;
@@ -28,7 +29,7 @@ export const Dashboard: React.FC = () => {
     const loadDashboardData = async () => {
       try {
         const { documents }: UserDocumentsResponse = await accountService.getUserDocuments();
-        
+
         // Simular estatísticas baseadas nos documentos (já que a API não retorna essas informações)
         const totalDocuments = documents.length;
         const currentMonth = new Date().getMonth();
@@ -36,7 +37,7 @@ export const Dashboard: React.FC = () => {
           const docDate = new Date(doc.uploadedAt || Date.now());
           return docDate.getMonth() === currentMonth;
         }).length;
-        
+
         const processingDocuments = documents.filter(doc => doc.status === 'ExtractingText').length;
         const completedDocuments = documents.filter(doc => doc.status === 'Processed' || doc.status === 'Analyzed').length;
 
@@ -46,7 +47,7 @@ export const Dashboard: React.FC = () => {
           processingDocuments,
           completedDocuments,
         });
-        
+
         setRecentDocuments(documents.slice(0, 5)); // Últimos 5 documentos
       } catch (error) {
         console.error('Erro ao carregar dados do dashboard:', error);
@@ -100,21 +101,15 @@ export const Dashboard: React.FC = () => {
     <div className="space-y-6">
       {/* Header do Dashboard */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">
-            Dashboard
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Bem-vindo de volta, {user?.userName}!
-          </p>
-        </div>
+        <PageBreadcrumb customTitle="Dashboard" />
+
         <div className="text-right">
           <p className="text-sm text-muted-foreground">
-            {new Date().toLocaleDateString('pt-BR', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
+            {new Date().toLocaleDateString('pt-BR', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
             })}
           </p>
         </div>
@@ -213,25 +208,24 @@ export const Dashboard: React.FC = () => {
                       </p>
                     </div>
                     <div className="flex-shrink-0">
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                        doc.status === 'Processed'
+                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${doc.status === 'Processed'
                           ? 'bg-emerald-100 text-emerald-700 border border-emerald-200'
                           : doc.status === 'Analyzed'
-                          ? 'bg-blue-100 text-blue-700 border border-blue-200'
-                          : doc.status === 'ExtractingText'
-                          ? 'bg-amber-100 text-amber-700 border border-amber-200'
-                          : doc.status === 'AnalyzingContent'
-                          ? 'bg-purple-100 text-purple-700 border border-purple-200'
-                          : doc.status === 'Queued'
-                          ? 'bg-indigo-100 text-indigo-600 border border-indigo-200'
-                          : doc.status === 'Uploaded'
-                          ? 'bg-slate-100 text-slate-600 border border-slate-200'
-                          : doc.status === 'PartiallyProcessed'
-                          ? 'bg-orange-100 text-orange-700 border border-orange-200'
-                          : doc.status === 'Cancelled'
-                          ? 'bg-gray-100 text-gray-500 border border-gray-200'
-                          : 'bg-destructive/10 text-destructive border border-destructive/20'
-                      }`}>
+                            ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                            : doc.status === 'ExtractingText'
+                              ? 'bg-amber-100 text-amber-700 border border-amber-200'
+                              : doc.status === 'AnalyzingContent'
+                                ? 'bg-purple-100 text-purple-700 border border-purple-200'
+                                : doc.status === 'Queued'
+                                  ? 'bg-indigo-100 text-indigo-600 border border-indigo-200'
+                                  : doc.status === 'Uploaded'
+                                    ? 'bg-slate-100 text-slate-600 border border-slate-200'
+                                    : doc.status === 'PartiallyProcessed'
+                                      ? 'bg-orange-100 text-orange-700 border border-orange-200'
+                                      : doc.status === 'Cancelled'
+                                        ? 'bg-gray-100 text-gray-500 border border-gray-200'
+                                        : 'bg-destructive/10 text-destructive border border-destructive/20'
+                        }`}>
                         {getStatusText(doc.status)}
                       </span>
                     </div>
@@ -279,9 +273,8 @@ export const Dashboard: React.FC = () => {
               <div className={`h-3 w-3 rounded-full ${user?.emailConfirmed ? 'bg-success' : 'bg-warning'}`} />
               <div>
                 <p className="text-sm font-medium text-card-foreground">Status do Email</p>
-                <p className={`text-sm font-medium ${
-                  user?.emailConfirmed ? 'text-success' : 'text-warning'
-                }`}>
+                <p className={`text-sm font-medium ${user?.emailConfirmed ? 'text-success' : 'text-warning'
+                  }`}>
                   {user?.emailConfirmed ? 'Verificado' : 'Pendente verificação'}
                 </p>
               </div>
