@@ -33,7 +33,7 @@ export const Layout: React.FC<LayoutProps> = ({ children }) => {
         {isMobile && isSidebarOpen && (
           <MobileSidebarOverlay isOpen={isSidebarOpen} onClick={toggleSidebar} />
         )}
-        <main className={`flex-1 overflow-auto pt-16 transition-all duration-300 ease-in-out ${isMobile ? '' : (isSidebarOpen ? 'ml-0' : 'ml-0')}`}>
+        <main className={`flex-1 overflow-auto transition-all duration-300 ease-in-out ${isMobile ? '' : (isSidebarOpen ? 'ml-0' : 'ml-0')}`}>
           <div className="p-6 h-full bg-background">
             {children}
           </div>
