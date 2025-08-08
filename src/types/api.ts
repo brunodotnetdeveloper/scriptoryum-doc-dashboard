@@ -68,7 +68,7 @@ export interface Document {
   id: number;
   originalFileName: string;
   description: string | null;
-  fileType: number;
+  fileType: string;
   fileName: string;
   storagePath: string;
   fileSize: number;

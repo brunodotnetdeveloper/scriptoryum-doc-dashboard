@@ -4,9 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from '@/components/ui/pagination';
 import { accountService, documentsService } from '@/services';
 import { toast } from '@/hooks/use-toast';
-import { File, Search, Download, Eye, Trash2, Loader2, RefreshCw, Brain, ArrowLeft } from 'lucide-react';
+import { File, Search, Download, Eye, Trash2, Loader2, RefreshCw, Brain, ArrowLeft, Filter, FileText, FileImage, FileSpreadsheet, FileVideo, FileAudio, Archive } from 'lucide-react';
 import { Document, DocumentDetails } from '@/types/api';
 import { DocumentDetailsView } from '@/components/DocumentDetailsView';
 
@@ -15,6 +17,9 @@ const DocumentsPage: React.FC = () => {
   const [filteredDocuments, setFilteredDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(10);
   const [showDetails, setShowDetails] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
   const [documentDetails, setDocumentDetails] = useState<DocumentDetails | null>(null);
@@ -26,13 +31,20 @@ const DocumentsPage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    // Filtrar documentos baseado no termo de busca
-    const filtered = documents.filter(doc =>
+    // Filtrar documentos baseado no termo de busca e status
+    let filtered = documents.filter(doc =>
       doc.originalFileName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       (doc.description && doc.description.toLowerCase().includes(searchTerm.toLowerCase()))
     );
+
+    // Aplicar filtro por status
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter(doc => doc.status === statusFilter);
+    }
+
     setFilteredDocuments(filtered);
-  }, [documents, searchTerm]);
+    setCurrentPage(1); // Reset para primeira página quando filtros mudarem
+  }, [documents, searchTerm, statusFilter]);
 
   const loadDocuments = async () => {
     try {
@@ -81,6 +93,47 @@ const DocumentsPage: React.FC = () => {
       hour: '2-digit',
       minute: '2-digit',
     });
+  };
+
+  const getFileTypeIcon = (fileName: string, fileType?: string | number) => {
+    const extension = fileName.toLowerCase().split('.').pop() || '';
+    const type = typeof fileType === 'string' ? fileType.toLowerCase() : '';
+    
+    // Documentos de texto
+    if (['pdf'].includes(extension) || type.includes('pdf')) {
+      return <File className="h-8 w-8 text-red-500" />;
+    }
+    if (['doc', 'docx', 'txt', 'rtf'].includes(extension) || type.includes('document') || type.includes('text')) {
+      return <FileText className="h-8 w-8 text-blue-500" />;
+    }
+    
+    // Planilhas
+    if (['xls', 'xlsx', 'csv'].includes(extension) || type.includes('spreadsheet')) {
+      return <FileSpreadsheet className="h-8 w-8 text-green-500" />;
+    }
+    
+    // Imagens
+    if (['jpg', 'jpeg', 'png', 'gif', 'bmp', 'svg', 'webp'].includes(extension) || type.includes('image')) {
+      return <FileImage className="h-8 w-8 text-purple-500" />;
+    }
+    
+    // Vídeos
+    if (['mp4', 'avi', 'mov', 'wmv', 'flv', 'webm'].includes(extension) || type.includes('video')) {
+      return <FileVideo className="h-8 w-8 text-orange-500" />;
+    }
+    
+    // Áudios
+    if (['mp3', 'wav', 'flac', 'aac', 'ogg'].includes(extension) || type.includes('audio')) {
+      return <FileAudio className="h-8 w-8 text-pink-500" />;
+    }
+    
+    // Arquivos compactados
+    if (['zip', 'rar', '7z', 'tar', 'gz'].includes(extension) || type.includes('archive')) {
+      return <Archive className="h-8 w-8 text-yellow-500" />;
+    }
+    
+    // Padrão
+    return <File className="h-8 w-8 text-primary" />;
   };
 
   const getStatusBadge = (status: string) => {
@@ -296,6 +349,19 @@ const DocumentsPage: React.FC = () => {
            !analyzingDocuments.has(document.id);
   };
 
+  // Funções de paginação
+  const totalPages = Math.ceil(filteredDocuments.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentDocuments = filteredDocuments.slice(startIndex, endIndex);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Obter lista única de status para o filtro
+  const availableStatuses = Array.from(new Set(documents.map(doc => doc.status))).sort();
+
   // Renderização condicional baseada no estado showDetails
   if (showDetails && selectedDocument) {
     return (
@@ -382,17 +448,56 @@ const DocumentsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Barra de Busca */}
+      {/* Barra de Busca e Filtros */}
       <Card className="bg-card border-border">
         <CardContent className="pt-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Buscar documentos..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 bg-input border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
-            />
+          <div className="flex flex-col sm:flex-row gap-4">
+            {/* Barra de Busca */}
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Buscar documentos..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 bg-input border-border text-foreground placeholder:text-muted-foreground focus:border-primary focus:ring-primary"
+              />
+            </div>
+            
+            {/* Filtro por Status */}
+            <div className="flex items-center space-x-2 min-w-[200px]">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="bg-input border-border text-foreground">
+                  <SelectValue placeholder="Filtrar por status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Todos os status</SelectItem>
+                  {availableStatuses.map((status) => {
+                    const statusConfig = {
+                      Processed: 'Texto extraído',
+                      Analyzed: 'Analisado',
+                      Uploaded: 'Carregado',
+                      Queued: 'Na Fila',
+                      ExtractingText: 'Extraindo Texto',
+                      AnalyzingContent: 'Analisando Conteúdo',
+                      Failed: 'Falha',
+                      TextExtractionFailed: 'Falha Extração Texto',
+                      ContentAnalysisFailed: 'Falha Análise Conteúdo',
+                      Cancelled: 'Cancelado',
+                      PartiallyProcessed: 'Parcialmente Processado',
+                      EntitiesExtractionFailed: 'Falha Extração Entidades',
+                      RisksAnalysisFailed: 'Falha Análise Riscos',
+                      InsightsGenerationFailed: 'Falha Geração Insights',
+                    };
+                    return (
+                      <SelectItem key={status} value={status}>
+                        {statusConfig[status as keyof typeof statusConfig] || status}
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -410,16 +515,16 @@ const DocumentsPage: React.FC = () => {
             <div className="flex items-center justify-center py-12">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
-          ) : filteredDocuments.length > 0 ? (
+          ) : currentDocuments.length > 0 ? (
             <div className="space-y-4">
-              {filteredDocuments.map((document) => (
+              {currentDocuments.map((document) => (
                 <div
                   key={document.id}
                   className="flex items-center space-x-4 p-4 bg-muted/50 rounded-lg hover:bg-accent/50 transition-colors border border-border/50"
                 >
                   {/* Ícone do arquivo */}
                   <div className="flex-shrink-0">
-                    <File className="h-8 w-8 text-primary" />
+                    {getFileTypeIcon(document.originalFileName, document.fileType)}
                   </div>
 
                   {/* Informações do documento */}
@@ -439,6 +544,8 @@ const DocumentsPage: React.FC = () => {
                     
                     <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                       <span>{formatFileSize(document.fileSize)}</span>
+                      <span>•</span>
+                      <span>{document.fileType || 'Tipo desconhecido'}</span>
                       <span>•</span>
                       <span>{formatDate(document.uploadedAt)}</span>
                       {document.id && (
@@ -502,20 +609,75 @@ const DocumentsPage: React.FC = () => {
                   </div>
                 </div>
               ))}
+              
+              {/* Paginação */}
+              {totalPages > 1 && (
+                <div className="mt-6 flex justify-center">
+                  <Pagination>
+                    <PaginationContent>
+                      <PaginationItem>
+                        <PaginationPrevious 
+                          onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
+                          className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                        />
+                      </PaginationItem>
+                      
+                      {/* Páginas */}
+                      {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                        let pageNumber;
+                        if (totalPages <= 5) {
+                          pageNumber = i + 1;
+                        } else if (currentPage <= 3) {
+                          pageNumber = i + 1;
+                        } else if (currentPage >= totalPages - 2) {
+                          pageNumber = totalPages - 4 + i;
+                        } else {
+                          pageNumber = currentPage - 2 + i;
+                        }
+                        
+                        return (
+                          <PaginationItem key={pageNumber}>
+                            <PaginationLink
+                              onClick={() => handlePageChange(pageNumber)}
+                              isActive={currentPage === pageNumber}
+                              className="cursor-pointer"
+                            >
+                              {pageNumber}
+                            </PaginationLink>
+                          </PaginationItem>
+                        );
+                      })}
+                      
+                      {totalPages > 5 && currentPage < totalPages - 2 && (
+                        <PaginationItem>
+                          <PaginationEllipsis />
+                        </PaginationItem>
+                      )}
+                      
+                      <PaginationItem>
+                        <PaginationNext 
+                          onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
+                          className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                        />
+                      </PaginationItem>
+                    </PaginationContent>
+                  </Pagination>
+                </div>
+              )}
             </div>
           ) : (
             <div className="text-center py-12">
               <File className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
               <h3 className="text-lg font-medium text-foreground mb-2">
-                {searchTerm ? 'Nenhum documento encontrado' : 'Nenhum documento'}
+                {searchTerm || statusFilter !== 'all' ? 'Nenhum documento encontrado' : 'Nenhum documento'}
               </h3>
               <p className="text-muted-foreground mb-4">
-                {searchTerm 
-                  ? 'Tente buscar com outros termos.'
+                {searchTerm || statusFilter !== 'all'
+                  ? 'Tente ajustar os filtros de busca.'
                   : 'Você ainda não enviou nenhum documento.'
                 }
               </p>
-              {!searchTerm && (
+              {!searchTerm && statusFilter === 'all' && (
                 <Button 
                   onClick={() => window.location.href = '/upload'}
                   className="bg-primary hover:bg-primary/90 text-primary-foreground"
@@ -523,6 +685,13 @@ const DocumentsPage: React.FC = () => {
                   Fazer Upload
                 </Button>
               )}
+            </div>
+          )}
+          
+          {/* Informações de paginação */}
+          {filteredDocuments.length > 0 && (
+            <div className="mt-4 text-center text-sm text-muted-foreground">
+              Mostrando {startIndex + 1} a {Math.min(endIndex, filteredDocuments.length)} de {filteredDocuments.length} documento{filteredDocuments.length !== 1 ? 's' : ''}
             </div>
           )}
         </CardContent>
