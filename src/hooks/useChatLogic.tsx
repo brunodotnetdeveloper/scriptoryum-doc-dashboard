@@ -130,7 +130,7 @@ export const useChatLogic = () => {
     }
   };
 
-  const deleteSession = async (sessionId: string) => {
+  const deleteSession = async (sessionId: number) => {
     try {
       await escribaService.deleteChatSession(sessionId);
       setSessions(prev => Array.isArray(prev) ? prev.filter(s => s.id !== sessionId) : []);
@@ -162,10 +162,11 @@ export const useChatLogic = () => {
     if (!inputMessage.trim() || isSending || !currentSession) return;
 
     const userMessage: ChatMessage = {
-      id: Date.now().toString(),
+      id: Date.now(),
+      chatSessionId: currentSession.id,
       role: 'user',
       content: inputMessage.trim(),
-      timestamp: new Date(),
+      createdAt: new Date().toISOString(),
       documentId: selectedDocument?.id,
       documentName: selectedDocument?.originalFileName,
     };
@@ -183,10 +184,11 @@ export const useChatLogic = () => {
       });
 
       const assistantMessage: ChatMessage = {
-        id: response.messageId,
+        id: response.messageId || Date.now(),
+        chatSessionId: currentSession.id,
         role: 'assistant',
-        content: response.response,
-        timestamp: new Date(),
+        content: response.response || '',
+        createdAt: new Date().toISOString(),
       };
 
       setMessages(prev => Array.isArray(prev) ? [...prev, assistantMessage] : [assistantMessage]);
@@ -226,7 +228,7 @@ export const useChatLogic = () => {
     });
   };
 
-  const formatTime = (date: Date) => {
+  const formatTime = (date: string) => {
     return new Date(date).toLocaleTimeString('pt-BR', {
       hour: '2-digit',
       minute: '2-digit',

@@ -14,21 +14,21 @@ import { Settings, Brain, Key, TestTube, Save, CheckCircle, XCircle, Loader2 } f
 import { PageBreadcrumb } from '@/components/PageBreadcrumb';
 
 const PROVIDER_INFO = {
-  openai: {
+  OpenAI: {
     name: 'OpenAI',
     description: 'GPT-4, GPT-3.5 e outros modelos da OpenAI',
     icon: '🤖',
     color: 'bg-green-500',
     website: 'https://platform.openai.com/api-keys'
   },
-  claude: {
+  Claude: {
     name: 'Anthropic Claude',
     description: 'Claude 3.5 Sonnet, Haiku e outros modelos da Anthropic',
     icon: '🧠',
     color: 'bg-gold-scriptoryum',
     website: 'https://console.anthropic.com/'
   },
-  gemini: {
+  Gemini: {
     name: 'Google Gemini',
     description: 'Gemini 1.5 Pro, Flash e outros modelos do Google',
     icon: '💎',
@@ -42,20 +42,45 @@ export const AIConfigPage: React.FC = () => {
   const [configuration, setConfiguration] = useState<AIConfiguration | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [models, setModels] = useState<Record<AIProvider, AIModel[]>>({
+    OpenAI: [],
+    Claude: [],
+    Gemini: []
+  });
   const [testingKeys, setTestingKeys] = useState<Record<AIProvider, boolean>>({
-    openai: false,
-    claude: false,
-    gemini: false
+    OpenAI: false,
+    Claude: false,
+    Gemini: false
   });
   const [keyValidation, setKeyValidation] = useState<Record<AIProvider, { isValid: boolean; message: string } | null>>({
-    openai: null,
-    claude: null,
-    gemini: null
+    OpenAI: null,
+    Claude: null,
+    Gemini: null
   });
 
   useEffect(() => {
     loadConfiguration();
+    loadModels();
   }, []);
+
+  const loadModels = async () => {
+    try {
+      const providers: AIProvider[] = ['OpenAI', 'Claude', 'Gemini'];
+      const modelsData: Record<AIProvider, AIModel[]> = {
+        OpenAI: [],
+        Claude: [],
+        Gemini: []
+      };
+
+      for (const provider of providers) {
+        modelsData[provider] = await aiConfigService.getModelsForProvider(provider);
+      }
+
+      setModels(modelsData);
+    } catch (error) {
+      console.error('Error loading models:', error);
+    }
+  };
 
   const loadConfiguration = async () => {
     try {
@@ -106,7 +131,7 @@ export const AIConfigPage: React.FC = () => {
     setTestingKeys(prev => ({ ...prev, [provider]: true }));
 
     try {
-      const result = await aiConfigService.testApiKey(provider, providerConfig.apiKey);
+      const result = await aiConfigService.testApiKey({ provider, apiKey: providerConfig.apiKey });
       setKeyValidation(prev => ({
         ...prev,
         [provider]: { isValid: result.success, message: result.message }
@@ -153,7 +178,7 @@ export const AIConfigPage: React.FC = () => {
   };
 
   const getModelsForProvider = (provider: AIProvider): AIModel[] => {
-    return aiConfigService.getModelsForProvider(provider);
+    return models[provider] || [];
   };
 
   const formatCost = (cost: number): string => {

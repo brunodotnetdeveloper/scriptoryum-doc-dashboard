@@ -1,27 +1,27 @@
 import { API_BASE_URL, BaseService } from './base.service';
 
 export interface ChatMessage {
-  id: string;
-  chatSessionId: number | null;
-  role: number | null;
-  content: string | null;
-  documentId: number | null;
-  documentName: string | null;
-  tokenCount: number | null;
-  cost: number | null;
-  aiProvider: number | null;
-  modelUsed: string | null;
-  responseTimeMs: number | null;
-  createdAt: Date | null;
+  id: number;
+  chatSessionId: number;
+  role: 'user' | 'assistant'; // Matching backend MessageRole enum
+  content: string;
+  createdAt: string;
+  documentId?: number;
+  documentName?: string;
+  tokenCount?: number;
+  cost?: number;
+  aiProvider?: string;
+  modelUsed?: string;
+  responseTimeMs?: number;
 }
 
 export interface ChatSession {
   id: number;
   userId: string;
   title: string;
-  description: string | null;
-  documentId: number | null;
-  documentName: string | null;
+  description?: string;
+  documentId?: number;
+  documentName?: string;
   messageCount: number;
   lastActivityAt: string;
   createdAt: string;
@@ -31,16 +31,19 @@ export interface ChatSession {
 
 export interface SendMessageRequest {
   message: string;
-  sessionId?: string;
+  sessionId?: number; // Changed from string to number to match backend
   documentId?: number;
   context?: string;
 }
 
 export interface SendMessageResponse {
-  sessionId: string;
-  messageId: string;
-  response: string;
+  success: boolean;
+  message: string;
+  sessionId?: number;
+  messageId?: number;
+  response?: string;
   suggestions?: string[];
+  errors: string[];
 }
 
 export interface DocumentContext {
@@ -73,7 +76,7 @@ class EscribaService extends BaseService {
     return data.session;
   }
 
-  async getChatSession(sessionId: string): Promise<ChatSession> {
+  async getChatSession(sessionId: number): Promise<ChatSession> {
     const response = await fetch(`${API_BASE_URL}/api/escriba/sessions/${sessionId}`, {
       method: 'GET',
       headers: this.getAuthHeaders(),
@@ -82,7 +85,7 @@ class EscribaService extends BaseService {
     return data.session;
   }
 
-  async deleteChatSession(sessionId: string): Promise<void> {
+  async deleteChatSession(sessionId: number): Promise<void> {
     const response = await fetch(`${API_BASE_URL}/api/escriba/sessions/${sessionId}`, {
       method: 'DELETE',
       headers: this.getAuthHeaders(),
@@ -90,7 +93,7 @@ class EscribaService extends BaseService {
     await this.handleResponse<void>(response);
   }
 
-  async updateChatSessionTitle(sessionId: string, title: string): Promise<void> {
+  async updateChatSessionTitle(sessionId: number, title: string): Promise<void> {
     const response = await fetch(`${API_BASE_URL}/api/escriba/sessions/${sessionId}`, {
       method: 'PATCH',
       headers: this.getAuthHeaders(),

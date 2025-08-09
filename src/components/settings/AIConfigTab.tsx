@@ -13,21 +13,21 @@ import { AIConfiguration, AIProvider, AIProviderConfig, AIModel } from '@/types/
 import { Brain, Key, TestTube, Save, CheckCircle, XCircle, Loader2, ExternalLink } from 'lucide-react';
 
 const PROVIDER_INFO = {
-  openai: {
+  OpenAI: {
     name: 'OpenAI',
     description: 'GPT-4, GPT-3.5 e outros modelos da OpenAI',
     icon: '🤖',
     color: 'bg-green-500',
     website: 'https://platform.openai.com/api-keys'
   },
-  claude: {
+  Claude: {
     name: 'Anthropic Claude',
     description: 'Claude 3.5 Sonnet, Haiku e outros modelos da Anthropic',
     icon: '🧠',
     color: 'bg-gold-scriptoryum',
     website: 'https://console.anthropic.com/'
   },
-  gemini: {
+  Gemini: {
     name: 'Google Gemini',
     description: 'Gemini 1.5 Pro, Flash e outros modelos do Google',
     icon: '💎',
@@ -42,14 +42,14 @@ export const AIConfigTab: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [testingKeys, setTestingKeys] = useState<Record<AIProvider, boolean>>({
-    openai: false,
-    claude: false,
-    gemini: false
+    OpenAI: false,
+    Claude: false,
+    Gemini: false
   });
   const [keyValidation, setKeyValidation] = useState<Record<AIProvider, { isValid: boolean; message: string } | null>>({
-    openai: null,
-    claude: null,
-    gemini: null
+    OpenAI: null,
+    Claude: null,
+    Gemini: null
   });
 
   useEffect(() => {
@@ -105,7 +105,10 @@ export const AIConfigTab: React.FC = () => {
     setTestingKeys(prev => ({ ...prev, [provider]: true }));
 
     try {
-      const result = await aiConfigService.testApiKey(provider, providerConfig.apiKey);
+      const result = await aiConfigService.testApiKey({
+        provider,
+        apiKey: providerConfig.apiKey
+      });
       setKeyValidation(prev => ({
         ...prev,
         [provider]: { isValid: result.success, message: result.message }
@@ -131,7 +134,11 @@ export const AIConfigTab: React.FC = () => {
 
     setIsSaving(true);
     try {
-      const response = await aiConfigService.updateConfiguration(configuration);
+      const updateDto = {
+        defaultProvider: configuration.defaultProvider,
+        providers: configuration.providers
+      };
+      const response = await aiConfigService.updateConfiguration(updateDto);
       if (response.success) {
         toast({
           title: 'Sucesso',
@@ -151,8 +158,35 @@ export const AIConfigTab: React.FC = () => {
     }
   };
 
+  const [models, setModels] = useState<Record<AIProvider, AIModel[]>>({
+    OpenAI: [],
+    Claude: [],
+    Gemini: []
+  });
+
+  const loadModelsForProvider = async (provider: AIProvider) => {
+    try {
+      const providerModels = await aiConfigService.getModelsForProvider(provider);
+      setModels(prev => ({ ...prev, [provider]: providerModels }));
+    } catch (error) {
+      console.error(`Erro ao carregar modelos para ${provider}:`, error);
+    }
+  };
+
+  useEffect(() => {
+    // Load models for all providers when component mounts
+    const loadAllModels = async () => {
+      await Promise.all([
+        loadModelsForProvider('OpenAI'),
+        loadModelsForProvider('Claude'),
+        loadModelsForProvider('Gemini')
+      ]);
+    };
+    loadAllModels();
+  }, []);
+
   const getModelsForProvider = (provider: AIProvider): AIModel[] => {
-    return aiConfigService.getModelsForProvider(provider);
+    return models[provider] || [];
   };
 
   const formatCost = (cost: number): string => {
@@ -217,6 +251,12 @@ export const AIConfigTab: React.FC = () => {
           const isTesting = testingKeys[providerConfig.provider];
           const models = getModelsForProvider(providerConfig.provider);
 
+          // Skip if provider info is not found
+          if (!info) {
+            console.warn(`Provider info not found for: ${providerConfig.provider}`);
+            return null;
+          }
+
           return (
             <Card key={providerConfig.provider} className="border-2 hover:border-primary/20 transition-colors">
               <CardHeader>
@@ -232,11 +272,11 @@ export const AIConfigTab: React.FC = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <Switch
-                      checked={providerConfig.enabled}
-                      onCheckedChange={(enabled) => updateProviderConfig(providerConfig.provider, { enabled })}
+                      checked={providerConfig.isEnabled}
+                      onCheckedChange={(isEnabled) => updateProviderConfig(providerConfig.provider, { isEnabled })}
                     />
                     <Label className="text-sm font-medium">
-                      {providerConfig.enabled ? 'Ativo' : 'Inativo'}
+                      {providerConfig.isEnabled ? 'Ativo' : 'Inativo'}
                     </Label>
                   </div>
                 </div>
@@ -304,9 +344,9 @@ export const AIConfigTab: React.FC = () => {
                 <div className="space-y-3">
                   <Label className="text-sm font-medium">Modelo Padrão</Label>
                   <Select
-                    value={providerConfig.defaultModel}
-                    onValueChange={(model) => updateProviderConfig(providerConfig.provider, { defaultModel: model })}
-                    disabled={!providerConfig.enabled}
+                    value={providerConfig.selectedModel}
+                    onValueChange={(model) => updateProviderConfig(providerConfig.provider, { selectedModel: model })}
+                    disabled={!providerConfig.isEnabled}
                   >
                     <SelectTrigger>
                       <SelectValue placeholder="Selecione um modelo" />
@@ -318,7 +358,7 @@ export const AIConfigTab: React.FC = () => {
                             <span>{model.name}</span>
                             <div className="flex gap-2 ml-4">
                               <Badge variant="outline" className="text-xs">
-                                {formatCost(model.inputCost)}/1K tokens
+                                {formatCost(model.costPer1kTokens)}/1K tokens
                               </Badge>
                             </div>
                           </div>
@@ -326,33 +366,6 @@ export const AIConfigTab: React.FC = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
-
-                {/* Advanced Settings */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Temperatura</Label>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="2"
-                      step="0.1"
-                      value={providerConfig.temperature}
-                      onChange={(e) => updateProviderConfig(providerConfig.provider, { temperature: parseFloat(e.target.value) })}
-                      disabled={!providerConfig.enabled}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm font-medium">Max Tokens</Label>
-                    <Input
-                      type="number"
-                      min="1"
-                      max="32000"
-                      value={providerConfig.maxTokens}
-                      onChange={(e) => updateProviderConfig(providerConfig.provider, { maxTokens: parseInt(e.target.value) })}
-                      disabled={!providerConfig.enabled}
-                    />
-                  </div>
                 </div>
               </CardContent>
             </Card>
