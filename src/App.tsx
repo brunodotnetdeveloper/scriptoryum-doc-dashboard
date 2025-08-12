@@ -14,6 +14,7 @@ import DocumentsPage from "@/pages/DocumentsPage";
 import { EscribaPage } from "@/pages/EscribaPage";
 import { AIConfigPage } from "@/pages/AIConfigPage";
 import { SettingsPage } from "@/pages/SettingsPage";
+import ServiceApiKeysPage from "@/pages/ServiceApiKeysPage";
 import NotFound from "./pages/NotFound";
 import { FloatingChatWidget } from "@/components/FloatingChatWidget";
 import { Loader2 } from "lucide-react";
@@ -148,6 +149,14 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <AIConfigPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/service-api-keys" 
+        element={
+          <ProtectedRoute>
+            <ServiceApiKeysPage />
           </ProtectedRoute>
         } 
       />

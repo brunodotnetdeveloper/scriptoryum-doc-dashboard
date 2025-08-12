@@ -2,7 +2,7 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Upload, FileText, Bot, Settings } from 'lucide-react';
+import { LayoutDashboard, Upload, FileText, Bot, Settings, Key } from 'lucide-react';
 
 const menuItems = [
   {
@@ -29,6 +29,11 @@ const menuItems = [
     name: 'Configurações',
     path: '/settings',
     icon: Settings,
+  },
+  {
+    name: 'API Keys',
+    path: '/service-api-keys',
+    icon: Key,
   },
 ];
 
