@@ -36,18 +36,18 @@ export const SettingsPage: React.FC = () => {
             <Brain className="h-4 w-4" />
             <span className="hidden sm:inline">IA</span>
           </TabsTrigger>
-          <TabsTrigger value="faturamento" className="flex items-center gap-2">
+          {/* <TabsTrigger value="faturamento" className="flex items-center gap-2">
             <CreditCard className="h-4 w-4" />
             <span className="hidden sm:inline">Faturamento</span>
-          </TabsTrigger>
+          </TabsTrigger> */}
           <TabsTrigger value="perfil" className="flex items-center gap-2">
             <User className="h-4 w-4" />
             <span className="hidden sm:inline">Perfil</span>
           </TabsTrigger>
-          <TabsTrigger value="notificacoes" className="flex items-center gap-2">
+          {/* <TabsTrigger value="notificacoes" className="flex items-center gap-2">
             <Bell className="h-4 w-4" />
             <span className="hidden sm:inline">Notificações</span>
-          </TabsTrigger>
+          </TabsTrigger> */}
           <TabsTrigger value="seguranca" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
             <span className="hidden sm:inline">Segurança</span>
@@ -58,17 +58,17 @@ export const SettingsPage: React.FC = () => {
           <AIConfigTab />
         </TabsContent>
 
-        <TabsContent value="faturamento">
+        {/* <TabsContent value="faturamento">
           <BillingTab />
-        </TabsContent>
+        </TabsContent> */}
 
         <TabsContent value="perfil">
           <ProfileTab />
         </TabsContent>
 
-        <TabsContent value="notificacoes">
+        {/* <TabsContent value="notificacoes">
           <NotificationsTab />
-        </TabsContent>
+        </TabsContent> */}
 
         <TabsContent value="seguranca">
           <SecurityTab />

@@ -1,17 +1,22 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { UserInfoDto, LoginDto, RegisterDto } from '@/types/api';
+import { UserInfoDto, LoginDto, RegisterDto, CompanyDto } from '@/types/api';
 import { authService } from '@/services';
+import { companyService } from '@/services/companyService';
 import { toast } from '@/hooks/use-toast';
 
 interface AuthContextType {
   user: UserInfoDto | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  currentCompany: CompanyDto | null;
+  userCompanies: CompanyDto[];
   login: (credentials: LoginDto) => Promise<void>;
   register: (userData: RegisterDto) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
+  switchCompany: (companyId: number) => Promise<void>;
+  refreshCompanies: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,6 +32,8 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserInfoDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentCompany, setCurrentCompany] = useState<CompanyDto | null>(null);
+  const [userCompanies, setUserCompanies] = useState<CompanyDto[]>([]);
 
   const isAuthenticated = !!user;
 
@@ -57,6 +64,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initializeAuth();
   }, []);
 
+  // Load companies when user is authenticated
+  useEffect(() => {
+    if (user && isAuthenticated) {
+      refreshCompanies();
+    }
+  }, [user, isAuthenticated]);
+
   const login = async (credentials: LoginDto) => {
     try {
       setIsLoading(true);
@@ -64,6 +78,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (response.success && response.user) {
         setUser(response.user);
+        // Load user companies after successful login
+        await refreshCompanies();
         toast({
           title: "Login realizado com sucesso!",
           description: `Bem-vindo(a), ${response.user.userName}!`,
@@ -90,6 +106,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (response.success && response.user) {
         setUser(response.user);
+        // Load user companies after successful registration
+        await refreshCompanies();
         toast({
           title: "Conta criada com sucesso!",
           description: `Bem-vindo(a) ao Scriptoryum, ${response.user.userName}!`,
@@ -123,9 +141,55 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const userData = await authService.getMe();
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
+      
+      // Load user companies
+      await refreshCompanies();
     } catch (error) {
       console.error('Error refreshing user:', error);
       logout();
+    }
+  };
+
+  const refreshCompanies = async () => {
+    try {
+      const companies = await companyService.getMyCompanies();
+      setUserCompanies(companies);
+      
+      // Set current company based on user's currentCompanyId or first available
+      if (user?.currentCompanyId) {
+        const current = companies.find(c => c.id === user.currentCompanyId);
+        setCurrentCompany(current || companies[0] || null);
+      } else {
+        setCurrentCompany(companies[0] || null);
+      }
+      
+      localStorage.setItem('userCompanies', JSON.stringify(companies));
+    } catch (error) {
+      console.error('Error refreshing companies:', error);
+      setUserCompanies([]);
+      setCurrentCompany(null);
+    }
+  };
+
+  const switchCompany = async (companyId: number) => {
+    try {
+      const company = userCompanies.find(c => c.id === companyId);
+      if (company) {
+        setCurrentCompany(company);
+        localStorage.setItem('currentCompanyId', companyId.toString());
+        
+        toast({
+          title: "Empresa alterada",
+          description: `Agora você está trabalhando na empresa: ${company.name}`,
+        });
+      }
+    } catch (error) {
+      console.error('Error switching company:', error);
+      toast({
+        title: "Erro ao trocar empresa",
+        description: "Não foi possível trocar de empresa. Tente novamente.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -133,10 +197,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     isAuthenticated,
     isLoading,
+    currentCompany,
+    userCompanies,
     login,
     register,
     logout,
     refreshUser,
+    switchCompany,
+    refreshCompanies,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

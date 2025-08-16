@@ -15,6 +15,7 @@ import {
   Brain,
   Settings,
   Cog,
+  Building2,
   LucideIcon,
 } from 'lucide-react';
 
@@ -54,6 +55,11 @@ const pageConfigs: Record<string, PageConfig> = {
     title: 'Configuração IA',
     icon: Cog,
     description: 'Configurações de inteligência artificial',
+  },
+  '/companies': {
+    title: 'Empresas',
+    icon: Building2,
+    description: 'Gerencie suas empresas e configurações organizacionais',
   },
 };
 

@@ -379,14 +379,12 @@ const DocumentsPage: React.FC = () => {
               <ArrowLeft className="h-4 w-4 mr-2" />
               Voltar para Lista
             </Button>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">
-                {selectedDocument.originalFileName}
-              </h1>
-              <p className="text-muted-foreground mt-1">
-                Detalhes e análise do documento
-              </p>
-            </div>
+            {/* <h1 className="text-3xl font-bold text-foreground">
+              {selectedDocument.originalFileName}
+            </h1>
+            <p className="text-muted-foreground">
+              Detalhes e análise do documento
+            </p> */}
           </div>
           <div className="flex items-center space-x-2">
             {getStatusBadge(selectedDocument.status)}

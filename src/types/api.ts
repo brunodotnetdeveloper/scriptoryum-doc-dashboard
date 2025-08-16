@@ -5,6 +5,9 @@ export interface UserInfoDto {
   email?: string;
   emailConfirmed: boolean;
   roles?: string[];
+  companies?: CompanyUserDto[];
+  currentCompanyId?: number;
+  currentCompanyName?: string;
 }
 
 export interface AuthResponseDto {
@@ -182,4 +185,105 @@ export interface TestApiKeyResponse {
   success: boolean;
   message: string;
   errors?: string[];
+}
+
+// Company Management Types
+export type CompanyStatus = 'Active' | 'Inactive' | 'Suspended' | 'Cancelled';
+export type CompanyUserRole = 'User' | 'Admin' | 'Owner' | 'Manager';
+export type CompanyUserStatus = 'Active' | 'Inactive' | 'Suspended' | 'Removed' | 'PendingInvitation';
+
+export interface CompanyDto {
+  id: number;
+  name: string;
+  description?: string;
+  cnpj?: string;
+  contactEmail: string;
+  contactPhone?: string;
+  address?: string;
+  status: CompanyStatus;
+  createdAt: string;
+  users?: CompanyUserDto[];
+  aiProviderConfigs?: CompanyAIProviderConfigDto[];
+}
+
+export interface CreateCompanyDto {
+  name: string;
+  status?: string;
+  description?: string;
+  cnpj?: string;
+  contactEmail: string;
+  contactPhone?: string;
+  address?: string;
+}
+
+export interface UpdateCompanyDto {
+  name: string;
+  cnpj?: string;
+  description?: string;
+  contactEmail: string;
+  contactPhone?: string;
+  address?: string;
+  status: CompanyStatus;
+}
+
+export interface CompanyUserDto {
+  user: UserInfoDto;
+  id: number;
+  companyId: number;
+  companyName: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  role: CompanyUserRole;
+  status: CompanyUserStatus;
+  joinedAt: string;
+  removedAt?: string;
+}
+
+export interface AddUserToCompanyDto {
+  companyId: number;
+  userEmail: string;
+  role: CompanyUserRole;
+}
+
+export interface UpdateCompanyUserDto {
+  role: CompanyUserRole;
+  status: CompanyUserStatus;
+}
+
+export interface UserCompaniesDto {
+  companies: CompanyUserDto[];
+}
+
+export interface CompanyAIProviderConfigDto {
+  id: number;
+  companyId: number;
+  provider: AIProvider;
+  selectedModel: string;
+  isEnabled: boolean;
+  lastTestResult?: boolean;
+  lastTestMessage?: string;
+  lastTestedAt?: string;
+  monthlyTokenLimit?: number;
+  tokensUsedThisMonth?: number;
+  tokenCounterResetAt?: string;
+}
+
+export interface CreateCompanyAIProviderConfigDto {
+  companyId: number;
+  provider: AIProvider;
+  selectedModel: string;
+  isEnabled: boolean;
+  monthlyTokenLimit?: number;
+}
+
+export interface UpdateCompanyAIProviderConfigDto {
+  selectedModel: string;
+  isEnabled: boolean;
+  monthlyTokenLimit?: number;
+}
+
+export interface TestCompanyAIProviderConfigDto {
+  companyId: number;
+  provider: AIProvider;
 }
