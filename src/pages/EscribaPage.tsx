@@ -7,7 +7,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
-import { PageBreadcrumb } from '@/components/PageBreadcrumb';
 import { 
   Send, 
   Bot, 
@@ -22,7 +21,8 @@ import {
   Search,
   Copy,
   Download,
-  RefreshCw
+  RefreshCw,
+  Hash
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { escribaService, documentsService, accountService } from '@/services';
@@ -30,9 +30,12 @@ import { ChatMessage, ChatSession, DocumentContext } from '@/services/escriba.se
 import { Document } from '@/types/api';
 import { useAuth } from '@/contexts/AuthContext';
 import { DocumentAnalysisPanel } from '@/components/DocumentAnalysisPanel';
+import { WorkspaceSelector } from '@/components/WorkspaceSelector';
+import { InlineDocumentViewer } from '@/components/InlineDocumentViewer';
+import { DocumentReference, DocumentReferenceDisplay } from '@/components/DocumentMarker';
 
 export const EscribaPage: React.FC = () => {
-  const { user } = useAuth();
+  const { user, currentWorkspace } = useAuth();
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSession, setCurrentSession] = useState<ChatSession | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -45,13 +48,16 @@ export const EscribaPage: React.FC = () => {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isLoadingSessions, setIsLoadingSessions] = useState(true);
   const [showAnalysisPanel, setShowAnalysisPanel] = useState(false);
+  const [showInlineViewer, setShowInlineViewer] = useState(false);
+  const [inlineViewerDocument, setInlineViewerDocument] = useState<Document | null>(null);
+  const [documentReferences, setDocumentReferences] = useState<DocumentReference[]>([]);
   
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     loadInitialData();
-  }, []);
+  }, [currentWorkspace]);
 
   useEffect(() => {
     scrollToBottom();
@@ -66,17 +72,26 @@ export const EscribaPage: React.FC = () => {
   }, [selectedDocument]);
 
   const loadInitialData = async () => {
+    if (!currentWorkspace) {
+      setSessions([]);
+      setDocuments([]);
+      setCurrentSession(null);
+      setMessages([]);
+      setIsLoadingSessions(false);
+      return;
+    }
+
     try {
       setIsLoadingSessions(true);
       const [sessionsData, documentsData] = await Promise.all([
         escribaService.getChatSessions().catch(() => []),
-        accountService.getUserDocuments().catch(() => ({ documents: [] }))
+        documentsService.getWorkspaceDocuments(currentWorkspace.id).catch(() => [])
       ]);
       
       // Garantir que sessionsData é um array
       const validSessions = Array.isArray(sessionsData) ? sessionsData : [];
       setSessions(validSessions);
-      setDocuments(documentsData.documents || []);
+      setDocuments(Array.isArray(documentsData) ? documentsData : []);
       
       // Se não há sessões, criar uma nova
       if (validSessions.length === 0) {
@@ -146,7 +161,7 @@ export const EscribaPage: React.FC = () => {
   const selectSession = async (session: ChatSession) => {
     try {
       setIsLoading(true);
-      const sessionData = await escribaService.getChatSession(session.id.toString());
+      const sessionData = await escribaService.getChatSession(session.id);
       setCurrentSession(sessionData);
       setMessages(Array.isArray(sessionData?.messages) ? sessionData.messages : []);
     } catch (error) {
@@ -163,7 +178,7 @@ export const EscribaPage: React.FC = () => {
 
   const deleteSession = async (sessionId: number) => {
     try {
-      await escribaService.deleteChatSession(sessionId.toString());
+      await escribaService.deleteChatSession(sessionId);
       setSessions(prev => Array.isArray(prev) ? prev.filter(s => s.id !== sessionId) : []);
       
       if (currentSession?.id === sessionId) {
@@ -193,18 +208,11 @@ export const EscribaPage: React.FC = () => {
     if (!inputMessage.trim() || isSending || !currentSession) return;
 
     const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      role: 0,
-      content: inputMessage.trim(),
-      createdAt: new Date(),
+      role: 'User',
+      content: inputMessage.trim(),      
       documentId: selectedDocument?.id,
       documentName: selectedDocument?.originalFileName,
-      chatSessionId: 0,
-      tokenCount: 0,
-      cost: 0,
-      aiProvider: 0,
-      modelUsed: '',
-      responseTimeMs: 0
+      chatSessionId: currentSession.id
     };
 
     setMessages(prev => Array.isArray(prev) ? [...prev, userMessage] : [userMessage]);
@@ -214,22 +222,20 @@ export const EscribaPage: React.FC = () => {
     try {
       const response = await escribaService.sendMessage({
         message: userMessage.content,
-        sessionId: currentSession.id.toString(),
+        sessionId: currentSession.id,
         documentId: selectedDocument?.id,
         context: documentContext?.content,
       });
 
       const assistantMessage: ChatMessage = {
         id: response.messageId,
-        role: 1,
+        role: 'Assistant',
         content: response.response,
-        createdAt: new Date(),
         chatSessionId: 0,
         documentId: 0,
         documentName: '',
         tokenCount: 0,
         cost: 0,
-        aiProvider: 0,
         modelUsed: '',
         responseTimeMs: 0
       };
@@ -270,6 +276,34 @@ export const EscribaPage: React.FC = () => {
     inputRef.current?.focus();
   };
 
+  const handleQuoteText = (text: string, documentName: string) => {
+    const quotedText = `📄 **${documentName}**\n> "${text}"\n\n`;
+    setInputMessage(prev => prev + quotedText);
+    inputRef.current?.focus();
+  };
+
+  const openInlineViewer = (document: Document) => {
+    setInlineViewerDocument(document);
+    setShowInlineViewer(true);
+  };
+
+  const closeInlineViewer = () => {
+    setShowInlineViewer(false);
+    setInlineViewerDocument(null);
+  };
+
+  const handleCreateReference = (reference: DocumentReference) => {
+    setDocumentReferences(prev => [...prev, reference]);
+    toast({
+      title: "Marcador criado",
+      description: `Referência adicionada para "${reference.documentName}"`
+    });
+  };
+
+  const handleRemoveReference = (referenceId: string) => {
+    setDocumentReferences(prev => prev.filter(ref => ref.id !== referenceId));
+  };
+
   const copyMessage = (content: string) => {
     navigator.clipboard.writeText(content);
     toast({
@@ -286,24 +320,28 @@ export const EscribaPage: React.FC = () => {
   };
 
   return (
-    <div className="h-full flex gap-6">
+    <div className="h-full flex flex-col lg:flex-row gap-3 md:gap-6">
       {/* Sidebar - Sessões de Chat */}
-      <div className="w-80 flex flex-col gap-4">
+      <div className="w-full lg:w-80 flex flex-col gap-3 md:gap-4">
         {/* Header da Sidebar */}
         <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-lg flex items-center gap-2">
+          <CardHeader className="pb-2 md:pb-3">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <CardTitle className="text-base md:text-lg flex items-center gap-2">
                 <Bot className="h-5 w-5 text-primary" />
                 Escriba
               </CardTitle>
               <Button
                 onClick={createNewSession}
                 size="sm"
-                className="h-8 w-8 p-0"
+                className="h-8 w-8 p-0 flex-shrink-0"
+                disabled={!currentWorkspace}
               >
                 <Plus className="h-4 w-4" />
               </Button>
+            </div>
+            <div className="mt-3">
+              <WorkspaceSelector />
             </div>
           </CardHeader>
         </Card>
@@ -316,16 +354,16 @@ export const EscribaPage: React.FC = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="p-0">
-            <ScrollArea className="h-[300px]">
+            <ScrollArea className="h-[250px] md:h-[300px]">
               {isLoadingSessions ? (
-                <div className="p-4 text-center text-muted-foreground">
+                <div className="p-3 md:p-4 text-center text-muted-foreground">
                   <RefreshCw className="h-4 w-4 animate-spin mx-auto mb-2" />
-                  Carregando conversas...
+                  <span className="text-xs md:text-sm">Carregando conversas...</span>
                 </div>
               ) : !Array.isArray(sessions) || sessions.length === 0 ? (
-                <div className="p-4 text-center text-muted-foreground">
-                  <MessageSquare className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p className="text-sm">Nenhuma conversa ainda</p>
+                <div className="p-3 md:p-4 text-center text-muted-foreground">
+                  <MessageSquare className="h-6 w-6 md:h-8 md:w-8 mx-auto mb-2 opacity-50" />
+                  <p className="text-xs md:text-sm">Nenhuma conversa ainda</p>
                   <p className="text-xs">Inicie uma nova conversa!</p>
                 </div>
               ) : (
@@ -341,7 +379,7 @@ export const EscribaPage: React.FC = () => {
                       onClick={() => selectSession(session)}
                     >
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium truncate">
+                        <p className="text-xs md:text-sm font-medium truncate">
                           {session.title}
                         </p>
                         <p className="text-xs text-muted-foreground">
@@ -369,56 +407,120 @@ export const EscribaPage: React.FC = () => {
 
         {/* Seleção de Documento */}
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm text-muted-foreground">
-              Contexto do Documento
+          <CardHeader className="pb-2 md:pb-3">
+            <CardTitle className="text-xs md:text-sm text-muted-foreground flex items-center gap-2">
+              <FileText className="h-4 w-4" />
+              Documentos da Workspace
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <select
-              value={selectedDocument?.id || ''}
-              onChange={(e) => {
-                const docId = parseInt(e.target.value);
-                const doc = documents.find(d => d.id === docId);
-                setSelectedDocument(doc || null);
-              }}
-              className="w-full p-2 border rounded-md bg-background text-sm"
-            >
-              <option value="">Nenhum documento selecionado</option>
-              {documents.map((doc) => (
-                <option key={doc.id} value={doc.id}>
-                  {doc.originalFileName}
-                </option>
-              ))}
-            </select>
-            
-            {selectedDocument && (
-              <div className="text-xs text-muted-foreground space-y-1">
-                <p><strong>Arquivo:</strong> {selectedDocument.originalFileName}</p>
-                <p><strong>Status:</strong> {selectedDocument.status}</p>
-                {documentContext && (
-                  <p><strong>Contexto:</strong> Carregado</p>
-                )}
+          <CardContent className="space-y-2 md:space-y-3 p-3 md:p-6">
+            {!currentWorkspace ? (
+              <div className="text-center py-3 md:py-4 text-muted-foreground">
+                <FileText className="h-6 w-6 md:h-8 md:w-8 mx-auto mb-2 opacity-50" />
+                <p className="text-xs md:text-sm">Selecione uma workspace</p>
               </div>
+            ) : documents.length === 0 ? (
+              <div className="text-center py-3 md:py-4 text-muted-foreground">
+                <FileText className="h-6 w-6 md:h-8 md:w-8 mx-auto mb-2 opacity-50" />
+                <p className="text-xs md:text-sm">Nenhum documento na workspace</p>
+              </div>
+            ) : (
+              <>
+                <select
+                  value={selectedDocument?.id || ''}
+                  onChange={(e) => {
+                    const docId = parseInt(e.target.value);
+                    const doc = documents.find(d => d.id === docId);
+                    setSelectedDocument(doc || null);
+                  }}
+                  className="w-full p-2 text-xs md:text-sm border rounded-md bg-background"
+                >
+                  <option value="">Selecionar documento...</option>
+                  {documents.map((doc) => (
+                    <option key={doc.id} value={doc.id}>
+                      {doc.originalFileName}
+                    </option>
+                  ))}
+                </select>
+                
+                {selectedDocument && (
+                   <div className="p-2 md:p-3 bg-muted/50 rounded-lg space-y-2">
+                     <div className="flex items-center justify-between gap-2">
+                       <div className="flex items-center gap-2 flex-1 min-w-0">
+                         <FileText className="h-4 w-4 text-primary flex-shrink-0" />
+                         <span className="text-xs md:text-sm font-medium truncate">
+                           {selectedDocument.originalFileName}
+                         </span>
+                       </div>
+                       <Button
+                         onClick={() => openInlineViewer(selectedDocument)}
+                         size="sm"
+                         variant="ghost"
+                         className="h-6 w-6 p-0 flex-shrink-0"
+                       >
+                         <Search className="h-3 w-3" />
+                       </Button>
+                     </div>
+                     <div className="text-xs text-muted-foreground space-y-1">
+                       <p><strong>Status:</strong> {selectedDocument.status}</p>
+                       <p><strong>Tamanho:</strong> {(selectedDocument.fileSize / 1024).toFixed(1)} KB</p>
+                       {documentContext && (
+                         <p className="text-green-600"><strong>✓ Contexto carregado</strong></p>
+                       )}
+                     </div>
+                   </div>
+                 )}
+
+                 {/* Marcadores de Referência */}
+                 {documentReferences.length > 0 && (
+                   <div className="space-y-2">
+                       <div className="flex items-center gap-2">
+                         <Hash className="h-4 w-4 text-primary" />
+                         <span className="text-xs md:text-sm font-medium">Marcadores ({documentReferences.length})</span>
+                       </div>
+                       <div className="space-y-2 max-h-32 md:max-h-48 overflow-y-auto">
+                       {documentReferences.map((reference) => (
+                         <DocumentReferenceDisplay
+                           key={reference.id}
+                           reference={reference}
+                           onQuote={handleQuoteText}
+                           onRemove={handleRemoveReference}
+                         />
+                       ))}
+                     </div>
+                   </div>
+                 )}
+               </>
             )}
           </CardContent>
         </Card>
       </div>
 
       {/* Área Principal do Chat */}
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col gap-3 md:gap-4">
+        {/* Visualizador Inline de Documento */}
+        {showInlineViewer && inlineViewerDocument && (
+          <InlineDocumentViewer
+             document={inlineViewerDocument}
+             onClose={closeInlineViewer}
+             onQuoteText={handleQuoteText}
+             onCreateReference={handleCreateReference}
+             className="max-h-96"
+           />
+        )}
+        
         <Card className="flex-1 flex flex-col">
           {/* Header do Chat */}
-          <CardHeader className="border-b">
-            <div className="flex items-center justify-between">
+          <CardHeader className="border-b p-3 md:p-6">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-center gap-3">
-                <Avatar className="h-8 w-8">
+                <Avatar className="h-6 w-6 md:h-8 md:w-8">
                   <AvatarFallback className="bg-primary text-primary-foreground">
-                    <Bot className="h-4 w-4" />
+                    <Bot className="h-3 w-3 md:h-4 md:w-4" />
                   </AvatarFallback>
                 </Avatar>
-                <div>
-                  <h3 className="font-semibold">
+                <div className="min-w-0">
+                  <h3 className="text-sm md:text-base font-semibold truncate">
                     {currentSession?.title || 'Nova Conversa'}
                   </h3>
                   <p className="text-xs text-muted-foreground">
@@ -426,22 +528,22 @@ export const EscribaPage: React.FC = () => {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 w-full sm:w-auto">
                 {selectedDocument && (
                   <Button
                     onClick={() => setShowAnalysisPanel(!showAnalysisPanel)}
                     size="sm"
                     variant="outline"
-                    className="flex items-center gap-1"
+                    className="flex items-center gap-1 flex-1 sm:flex-none"
                   >
                     <Brain className="h-3 w-3" />
-                    Análise
+                    <span className="hidden sm:inline">Análise</span>
                   </Button>
                 )}
                 {selectedDocument && (
-                  <Badge variant="secondary" className="flex items-center gap-1">
-                    <FileText className="h-3 w-3" />
-                    {selectedDocument.originalFileName}
+                  <Badge variant="secondary" className="flex items-center gap-1 text-xs truncate max-w-32 sm:max-w-none">
+                    <FileText className="h-3 w-3 flex-shrink-0" />
+                    <span className="truncate">{selectedDocument.originalFileName}</span>
                   </Badge>
                 )}
               </div>
@@ -450,7 +552,7 @@ export const EscribaPage: React.FC = () => {
 
           {/* Área de Mensagens */}
           <CardContent className="flex-1 p-0">
-            <ScrollArea className="h-[500px] p-4">
+            <ScrollArea className="h-[400px] md:h-[500px] p-3 md:p-4">
               {isLoading ? (
                 <div className="flex items-center justify-center h-full">
                   <RefreshCw className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -471,30 +573,30 @@ export const EscribaPage: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <div className="space-y-4">
+                <div className="space-y-3 md:space-y-4">
                   {Array.isArray(messages) && messages.map((message) => (
                     <div
                       key={message.id}
-                      className={`flex gap-3 ${
-                        message.role === 0 ? 'justify-end' : 'justify-start'
+                      className={`flex gap-2 md:gap-3 ${
+                        message.role === 'User' ? 'justify-end' : 'justify-start'
                       }`}
                     >
-                      {message.role === 1 && (
-                        <Avatar className="h-8 w-8 mt-1">
+                      {message.role === 'Assistant' && (
+                        <Avatar className="h-6 w-6 md:h-8 md:w-8 mt-1 flex-shrink-0">
                           <AvatarFallback className="bg-primary text-primary-foreground">
-                            <Bot className="h-4 w-4" />
+                            <Bot className="h-3 w-3 md:h-4 md:w-4" />
                           </AvatarFallback>
                         </Avatar>
                       )}
                       
                       <div
-                        className={`max-w-[80%] rounded-lg p-3 ${
-                          message.role === 0  
+                        className={`max-w-[85%] md:max-w-[80%] rounded-lg p-2 md:p-3 ${
+                          message.role === 'User'  
                             ? 'bg-primary text-primary-foreground'
                             : 'bg-muted'
                         }`}
                       >
-                        <div className="whitespace-pre-wrap text-sm">
+                        <div className="whitespace-pre-wrap text-xs md:text-sm break-words">
                           {message.content}
                         </div>
                         
@@ -506,9 +608,9 @@ export const EscribaPage: React.FC = () => {
                             onClick={() => copyMessage(message.content)}
                             size="sm"
                             variant="ghost"
-                            className="h-6 w-6 p-0 opacity-70 hover:opacity-100"
+                            className="h-5 w-5 md:h-6 md:w-6 p-0 opacity-70 hover:opacity-100"
                           >
-                            <Copy className="h-3 w-3" />
+                            <Copy className="h-2 w-2 md:h-3 md:w-3" />
                           </Button>
                         </div>
                         
@@ -522,10 +624,10 @@ export const EscribaPage: React.FC = () => {
                         )}
                       </div>
                       
-                      {message.role === 0 && (
-                        <Avatar className="h-8 w-8 mt-1">
+                      {message.role === 'User' && (
+                        <Avatar className="h-6 w-6 md:h-8 md:w-8 mt-1 flex-shrink-0">
                           <AvatarFallback className="bg-secondary">
-                            <User className="h-4 w-4" />
+                            <User className="h-3 w-3 md:h-4 md:w-4" />
                           </AvatarFallback>
                         </Avatar>
                       )}
@@ -533,15 +635,15 @@ export const EscribaPage: React.FC = () => {
                   ))}
                   
                   {isSending && (
-                    <div className="flex gap-3 justify-start">
-                      <Avatar className="h-8 w-8 mt-1">
+                    <div className="flex gap-2 md:gap-3 justify-start">
+                      <Avatar className="h-6 w-6 md:h-8 md:w-8 mt-1 flex-shrink-0">
                         <AvatarFallback className="bg-primary text-primary-foreground">
-                          <Bot className="h-4 w-4" />
+                          <Bot className="h-3 w-3 md:h-4 md:w-4" />
                         </AvatarFallback>
                       </Avatar>
-                      <div className="bg-muted rounded-lg p-3">
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <RefreshCw className="h-4 w-4 animate-spin" />
+                      <div className="bg-muted rounded-lg p-2 md:p-3">
+                        <div className="flex items-center gap-2 text-xs md:text-sm text-muted-foreground">
+                          <RefreshCw className="h-3 w-3 md:h-4 md:w-4 animate-spin" />
                           Escriba está pensando...
                         </div>
                       </div>
@@ -556,8 +658,8 @@ export const EscribaPage: React.FC = () => {
 
           {/* Sugestões */}
           {Array.isArray(suggestions) && suggestions.length > 0 && Array.isArray(messages) && messages.length === 0 && (
-            <div className="border-t p-4">
-              <p className="text-sm text-muted-foreground mb-3">
+            <div className="border-t p-3 md:p-4">
+              <p className="text-xs md:text-sm text-muted-foreground mb-2 md:mb-3">
                 Sugestões para começar:
               </p>
               <div className="flex flex-wrap gap-2">
@@ -577,7 +679,7 @@ export const EscribaPage: React.FC = () => {
           )}
 
           {/* Input de Mensagem */}
-          <div className="border-t p-4">
+          <div className="border-t p-3 md:p-4">
             <div className="flex gap-2">
               <Textarea
                 ref={inputRef}
@@ -589,14 +691,14 @@ export const EscribaPage: React.FC = () => {
                     ? `Pergunte algo sobre ${selectedDocument.originalFileName}...`
                     : "Digite sua mensagem..."
                 }
-                className="min-h-[60px] max-h-[120px] resize-none"
+                className="min-h-[50px] md:min-h-[60px] max-h-[100px] md:max-h-[120px] resize-none text-sm"
                 disabled={isSending}
               />
               <Button
                 onClick={sendMessage}
                 disabled={!inputMessage.trim() || isSending || !currentSession}
                 size="sm"
-                className="h-[60px] px-4"
+                className="h-[50px] md:h-[60px] px-3 md:px-4"
               >
                 <Send className="h-4 w-4" />
               </Button>

@@ -9,6 +9,7 @@ import { documentsService } from '@/services';
 import { toast } from '@/hooks/use-toast';
 import { Upload, File, X, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { PageBreadcrumb } from '@/components/PageBreadcrumb';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface UploadedFile {
   file: File;
@@ -18,6 +19,7 @@ interface UploadedFile {
 }
 
 export const UploadPage: React.FC = () => {
+  const { currentWorkspace } = useAuth();
   const [files, setFiles] = useState<UploadedFile[]>([]);
   const [description, setDescription] = useState('');
   const [isDragOver, setIsDragOver] = useState(false);
@@ -72,7 +74,7 @@ export const UploadPage: React.FC = () => {
 
   const uploadDocument = async (uploadFile: UploadedFile, index: number) => {
     try {
-      const response = await documentsService.uploadDocument(uploadFile.file, description);
+      const response = await documentsService.uploadDocument(uploadFile.file, description, currentWorkspace?.id);
 
       if (response.success) {
         setFiles(prev => prev.map((f, i) =>

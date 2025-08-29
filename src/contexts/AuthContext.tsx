@@ -1,22 +1,26 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { UserInfoDto, LoginDto, RegisterDto, CompanyDto } from '@/types/api';
+import { UserInfoDto, LoginDto, RegisterDto, WorkspaceDto, OrganizationDto } from '@/types/api';
 import { authService } from '@/services';
-import { companyService } from '@/services/companyService';
+import { workspaceService } from '@/services/workspaceService';
+import { organizationService } from '@/services/organizationService';
 import { toast } from '@/hooks/use-toast';
 
 interface AuthContextType {
   user: UserInfoDto | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  currentCompany: CompanyDto | null;
-  userCompanies: CompanyDto[];
+  currentWorkspace: WorkspaceDto | null;
+  userWorkspaces: WorkspaceDto[];
+  currentOrganization: OrganizationDto | null;
+  needsWorkspace: boolean;
   login: (credentials: LoginDto) => Promise<void>;
   register: (userData: RegisterDto) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
-  switchCompany: (companyId: number) => Promise<void>;
-  refreshCompanies: () => Promise<void>;
+  switchWorkspace: (workspaceId: number) => Promise<void>;
+  refreshWorkspaces: () => Promise<void>;
+  refreshOrganization: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -29,11 +33,13 @@ export const useAuth = () => {
   return context;
 };
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<UserInfoDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentCompany, setCurrentCompany] = useState<CompanyDto | null>(null);
-  const [userCompanies, setUserCompanies] = useState<CompanyDto[]>([]);
+  const [currentWorkspace, setCurrentWorkspace] = useState<WorkspaceDto | null>(null);
+  const [userWorkspaces, setUserWorkspaces] = useState<WorkspaceDto[]>([]);
+  const [currentOrganization, setCurrentOrganization] = useState<OrganizationDto | null>(null);
+  const [needsWorkspace, setNeedsWorkspace] = useState(false);
 
   const isAuthenticated = !!user;
 
@@ -64,10 +70,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initializeAuth();
   }, []);
 
-  // Load companies when user is authenticated
+  // Load workspaces and organization when user is authenticated
   useEffect(() => {
     if (user && isAuthenticated) {
-      refreshCompanies();
+      refreshWorkspaces();
+      refreshOrganization();
     }
   }, [user, isAuthenticated]);
 
@@ -78,8 +85,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (response.success && response.user) {
         setUser(response.user);
-        // Load user companies after successful login
-        await refreshCompanies();
+        // Load user workspaces and organization after successful login
+        await refreshWorkspaces();
+        await refreshOrganization();
         toast({
           title: "Login realizado com sucesso!",
           description: `Bem-vindo(a), ${response.user.userName}!`,
@@ -106,8 +114,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       if (response.success && response.user) {
         setUser(response.user);
-        // Load user companies after successful registration
-        await refreshCompanies();
+        // Load user workspaces and organization after successful registration
+        await refreshWorkspaces();
+        await refreshOrganization();
         toast({
           title: "Conta criada com sucesso!",
           description: `Bem-vindo(a) ao Scriptoryum, ${response.user.userName}!`,
@@ -142,54 +151,77 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
       
-      // Load user companies
-      await refreshCompanies();
+      await refreshWorkspaces();
     } catch (error) {
       console.error('Error refreshing user:', error);
       logout();
     }
   };
 
-  const refreshCompanies = async () => {
+  const refreshWorkspaces = async () => {
     try {
-      const companies = await companyService.getMyCompanies();
-      setUserCompanies(companies);
+      const workspaces = await workspaceService.getMyWorkspaces();
+      setUserWorkspaces(workspaces);
       
-      // Set current company based on user's currentCompanyId or first available
-      if (user?.currentCompanyId) {
-        const current = companies.find(c => c.id === user.currentCompanyId);
-        setCurrentCompany(current || companies[0] || null);
+      // Check if user needs to create a workspace
+      const hasWorkspaces = workspaces.length > 0;
+      setNeedsWorkspace(!hasWorkspaces);
+      
+      // Set current workspace based on user's currentWorkspaceId or first available
+      if (hasWorkspaces) {
+        if (user?.currentWorkspaceId) {
+          const current = workspaces.find(w => w.id === user.currentWorkspaceId);
+          setCurrentWorkspace(current || workspaces[0]);
+        } else {
+          setCurrentWorkspace(workspaces[0]);
+        }
       } else {
-        setCurrentCompany(companies[0] || null);
+        setCurrentWorkspace(null);
       }
       
-      localStorage.setItem('userCompanies', JSON.stringify(companies));
+      localStorage.setItem('userWorkspaces', JSON.stringify(workspaces));
     } catch (error) {
-      console.error('Error refreshing companies:', error);
-      setUserCompanies([]);
-      setCurrentCompany(null);
+      console.error('Error refreshing workspaces:', error);
+      setUserWorkspaces([]);
+      setCurrentWorkspace(null);
+      setNeedsWorkspace(true);
     }
   };
 
-  const switchCompany = async (companyId: number) => {
+  const switchWorkspace = async (workspaceId: number) => {
     try {
-      const company = userCompanies.find(c => c.id === companyId);
-      if (company) {
-        setCurrentCompany(company);
-        localStorage.setItem('currentCompanyId', companyId.toString());
+      const workspace = userWorkspaces.find(w => w.id === workspaceId);
+      if (workspace) {
+        setCurrentWorkspace(workspace);
+        localStorage.setItem('currentWorkspaceId', workspaceId.toString());
         
         toast({
-          title: "Empresa alterada",
-          description: `Agora você está trabalhando na empresa: ${company.name}`,
+          title: "Workspace alterado",
+          description: `Agora você está trabalhando no workspace: ${workspace.name}`,
         });
       }
     } catch (error) {
-      console.error('Error switching company:', error);
+      console.error('Error switching workspace:', error);
       toast({
-        title: "Erro ao trocar empresa",
-        description: "Não foi possível trocar de empresa. Tente novamente.",
+        title: "Erro ao trocar workspace",
+        description: "Não foi possível trocar de workspace. Tente novamente.",
         variant: "destructive",
       });
+    }
+  };
+
+  const refreshOrganization = async () => {
+    try {
+      // Get organization from user's organizationId
+      if (user?.organizationId) {
+        const organization = await organizationService.getOrganizationById(user.organizationId);
+        setCurrentOrganization(organization);
+      } else {
+        setCurrentOrganization(null);
+      }
+    } catch (error) {
+      console.error('Error refreshing organization:', error);
+      setCurrentOrganization(null);
     }
   };
 
@@ -197,14 +229,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     isAuthenticated,
     isLoading,
-    currentCompany,
-    userCompanies,
+    currentWorkspace,
+    userWorkspaces,
+    currentOrganization,
+    needsWorkspace,
     login,
     register,
     logout,
     refreshUser,
-    switchCompany,
-    refreshCompanies,
+    switchWorkspace,
+    refreshWorkspaces,
+    refreshOrganization,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

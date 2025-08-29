@@ -31,11 +31,14 @@ class DocumentsService extends BaseService {
         return data.url;
     }
 
-    async uploadDocument(file: File, description?: string): Promise<UploadDocumentResponseDto> {
+    async uploadDocument(file: File, description?: string, workspaceId?: number): Promise<UploadDocumentResponseDto> {
         const formData = new FormData();
         formData.append('File', file);
         if (description) {
             formData.append('Description', description);
+        }
+        if (workspaceId) {
+            formData.append('WorkspaceId', workspaceId.toString());
         }
 
         const token = localStorage.getItem('authToken');
@@ -48,6 +51,18 @@ class DocumentsService extends BaseService {
         });
 
         return this.handleResponse<UploadDocumentResponseDto>(response);
+    }
+
+    async getWorkspaceDocuments(workspaceId: number): Promise<any> {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch(`${API_BASE_URL}/api/workspace/${workspaceId}/documents`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                ...(token && { 'Authorization': `Bearer ${token}` }),
+            },
+        });
+        return this.handleResponse<any>(response);
     }
 
     // Métodos para análise de documentos

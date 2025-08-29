@@ -1,11 +1,11 @@
 import { API_BASE_URL, BaseService } from './base.service';
 
-export interface ChatMessage {
-  id: number;
+export interface ChatMessage {  
+  id?: number;
+  createdAt?:  Date;
   chatSessionId: number;
-  role: 'user' | 'assistant'; // Matching backend MessageRole enum
+  role: 'User' | 'Assistant'; 
   content: string;
-  createdAt: string;
   documentId?: number;
   documentName?: string;
   tokenCount?: number;

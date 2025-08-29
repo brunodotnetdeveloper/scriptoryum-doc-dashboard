@@ -15,6 +15,7 @@ import {
 import { useAuth } from '@/contexts/AuthContext';
 import { LogOut, User } from 'lucide-react';
 import { NotificationBell } from './NotificationBell';
+import { WorkspaceSelector } from './WorkspaceSelector';
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -61,6 +62,7 @@ export const Header: React.FC<HeaderProps> = ({ toggleSidebar, isMobile, isSideb
       </div>
 
       <div className="flex items-center space-x-4">
+        <WorkspaceSelector />
         <NotificationBell />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

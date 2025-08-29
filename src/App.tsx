@@ -8,23 +8,25 @@ import { AuthProvider, useAuth } from "@/contexts/AuthContext";
 import { Layout } from "@/components/Layout";
 import { Login } from "@/pages/Login";
 import Register from "@/pages/Register";
-import { Dashboard } from "@/pages/Dashboard";
 import { UploadPage } from "@/pages/UploadPage";
 import DocumentsPage from "@/pages/DocumentsPage";
 import { EscribaPage } from "@/pages/EscribaPage";
 import { AIConfigPage } from "@/pages/AIConfigPage";
 import { SettingsPage } from "@/pages/SettingsPage";
 import ServiceApiKeysPage from "@/pages/ServiceApiKeysPage";
-import CompaniesPage from "@/pages/CompaniesPage";
+import WorkspacesPage from "@/pages/WorkspacesPage";
+import UserManagementPage from "@/pages/UserManagementPage";
 import NotFound from "./pages/NotFound";
 import { FloatingChatWidget } from "@/components/FloatingChatWidget";
+import { CreateWorkspaceModal } from "@/components/CreateWorkspaceModal";
 import { Loader2 } from "lucide-react";
+import Dashboard from "./pages/Dashboard";
 
 const queryClient = new QueryClient();
 
 // Componente para proteger rotas que requerem autenticação
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, needsWorkspace, refreshWorkspaces } = useAuth();
 
   if (isLoading) {
     return (
@@ -41,6 +43,10 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
     return <Navigate to="/login" replace />;
   }
 
+  const handleWorkspaceCreated = async () => {
+    await refreshWorkspaces();
+  };
+
   return (
     <>
       <Layout>{children}</Layout>
@@ -50,6 +56,10 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
         size="md"
         showBadge={true}
         badgeText="Escriba AI"
+      />
+      <CreateWorkspaceModal 
+        isOpen={needsWorkspace}
+        onWorkspaceCreated={handleWorkspaceCreated}
       />
     </>
   );
@@ -162,10 +172,18 @@ const AppRoutes = () => {
         } 
       />
       <Route 
-        path="/companies" 
+        path="/workspaces" 
         element={
           <ProtectedRoute>
-            <CompaniesPage />
+            <WorkspacesPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/users" 
+        element={
+          <ProtectedRoute>
+            <UserManagementPage />
           </ProtectedRoute>
         } 
       />

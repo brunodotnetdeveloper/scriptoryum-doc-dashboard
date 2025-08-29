@@ -31,30 +31,30 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Building2, Plus, Edit, Trash2, Users } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
-import { companyService } from '@/services/companyService';
+import { workspaceService } from '@/services/workspaceService';
 import { toast } from '@/hooks/use-toast';
 import {
-  CompanyDto,
-  CreateCompanyDto,
-  UpdateCompanyDto,
-  CompanyStatus,
-  CompanyUserDto,
+  WorkspaceDto,
+  CreateWorkspaceDto,
+  UpdateWorkspaceDto,
+  WorkspaceStatus,
+  WorkspaceUserDto,
 } from '@/types/api';
 
-interface CompanyManagementProps {
+interface WorkspaceManagementProps {
   className?: string;
 }
 
-export const CompanyManagement: React.FC<CompanyManagementProps> = ({ className }) => {
-  const { user, userCompanies, refreshCompanies } = useAuth();
-  const [companies, setCompanies] = useState<CompanyDto[]>([]);
-  const [selectedCompany, setSelectedCompany] = useState<CompanyDto | null>(null);
-  const [companyUsers, setCompanyUsers] = useState<CompanyUserDto[]>([]);
+export const WorkspaceManagement: React.FC<WorkspaceManagementProps> = ({ className }) => {
+  const { user, userWorkspaces, refreshWorkspaces } = useAuth();
+  const [workspaces, setWorkspaces] = useState<WorkspaceDto[]>([]);
+  const [selectedWorkspace, setSelectedWorkspace] = useState<WorkspaceDto | null>(null);
+  const [workspaceUsers, setWorkspaceUsers] = useState<WorkspaceUserDto[]>([]);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isUsersDialogOpen, setIsUsersDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [formData, setFormData] = useState<CreateCompanyDto>({
+  const [formData, setFormData] = useState<CreateWorkspaceDto>({
     name: '',
     description: '',
     status: 'Active',
@@ -65,24 +65,24 @@ export const CompanyManagement: React.FC<CompanyManagementProps> = ({ className 
   });
 
   useEffect(() => {
-    setCompanies(userCompanies);
-  }, [userCompanies]);
+    setWorkspaces(userWorkspaces);
+  }, [userWorkspaces]);
 
-  const handleCreateCompany = async () => {
+  const handleCreateWorkspace = async () => {
     try {
       setIsLoading(true);
-      await companyService.createCompany(formData);
-      await refreshCompanies();
+      await workspaceService.createWorkspace(formData);
+      await refreshWorkspaces();
       setIsCreateDialogOpen(false);
       setFormData({ name: '', description: '', status: 'Active', cnpj: '', contactEmail: '', contactPhone: '', address: '' });
       toast({
-        title: 'Empresa criada',
-        description: 'A empresa foi criada com sucesso.',
+        title: 'Workspace criado',
+        description: 'O workspace foi criado com sucesso.',
       });
     } catch (error) {
       toast({
-        title: 'Erro ao criar empresa',
-        description: 'Não foi possível criar a empresa. Tente novamente.',
+        title: 'Erro ao criar workspace',
+        description: 'Não foi possível criar o workspace. Tente novamente.',
         variant: 'destructive',
       });
     } finally {
@@ -90,32 +90,32 @@ export const CompanyManagement: React.FC<CompanyManagementProps> = ({ className 
     }
   };
 
-  const handleUpdateCompany = async () => {
-    if (!selectedCompany) return;
+  const handleUpdateWorkspace = async () => {
+    if (!selectedWorkspace) return;
 
     try {
       setIsLoading(true);
-      const updateData: UpdateCompanyDto = {
+      const updateData: UpdateWorkspaceDto = {
         name: formData.name,
         description: formData.description,
-        status: formData.status as CompanyStatus,
+        status: formData.status as WorkspaceStatus,
         cnpj: formData.cnpj,
         contactEmail: formData.contactEmail,
         contactPhone: formData.contactPhone,
         address: formData.address,
       };
-      await companyService.updateCompany(selectedCompany.id, updateData);
-      await refreshCompanies();
+      await workspaceService.updateWorkspace(selectedWorkspace.id, updateData);
+      await refreshWorkspaces();
       setIsEditDialogOpen(false);
-      setSelectedCompany(null);
+      setSelectedWorkspace(null);
       toast({
-        title: 'Empresa atualizada',
-        description: 'A empresa foi atualizada com sucesso.',
+        title: 'Workspace atualizado',
+        description: 'O workspace foi atualizado com sucesso.',
       });
     } catch (error) {
       toast({
-        title: 'Erro ao atualizar empresa',
-        description: 'Não foi possível atualizar a empresa. Tente novamente.',
+        title: 'Erro ao atualizar workspace',
+        description: 'Não foi possível atualizar o workspace. Tente novamente.',
         variant: 'destructive',
       });
     } finally {
@@ -123,21 +123,21 @@ export const CompanyManagement: React.FC<CompanyManagementProps> = ({ className 
     }
   };
 
-  const handleDeleteCompany = async (companyId: number) => {
-    if (!confirm('Tem certeza que deseja excluir esta empresa?')) return;
+  const handleDeleteWorkspace = async (workspaceId: number) => {
+    if (!confirm('Tem certeza que deseja excluir este workspace?')) return;
 
     try {
       setIsLoading(true);
-      await companyService.deleteCompany(companyId);
-      await refreshCompanies();
+      await workspaceService.deleteWorkspace(workspaceId);
+      await refreshWorkspaces();
       toast({
-        title: 'Empresa excluída',
-        description: 'A empresa foi excluída com sucesso.',
+        title: 'Workspace excluído',
+        description: 'O workspace foi excluído com sucesso.',
       });
     } catch (error) {
       toast({
-        title: 'Erro ao excluir empresa',
-        description: 'Não foi possível excluir a empresa. Tente novamente.',
+        title: 'Erro ao excluir workspace',
+        description: 'Não foi possível excluir o workspace. Tente novamente.',
         variant: 'destructive',
       });
     } finally {
@@ -145,17 +145,17 @@ export const CompanyManagement: React.FC<CompanyManagementProps> = ({ className 
     }
   };
 
-  const handleViewUsers = async (company: CompanyDto) => {
+  const handleViewUsers = async (workspace: WorkspaceDto) => {
     try {
       setIsLoading(true);
-      const users = await companyService.getCompanyUsers(company.id);
-      setCompanyUsers(users);
-      setSelectedCompany(company);
+      const users = await workspaceService.getWorkspaceUsers(workspace.id);
+      setWorkspaceUsers(users);
+      setSelectedWorkspace(workspace);
       setIsUsersDialogOpen(true);
     } catch (error) {
       toast({
         title: 'Erro ao carregar usuários',
-        description: 'Não foi possível carregar os usuários da empresa.',
+        description: 'Não foi possível carregar os usuários do workspace.',
         variant: 'destructive',
       });
     } finally {
@@ -163,21 +163,21 @@ export const CompanyManagement: React.FC<CompanyManagementProps> = ({ className 
     }
   };
 
-  const openEditDialog = (company: CompanyDto) => {
-    setSelectedCompany(company);
+  const openEditDialog = (workspace: WorkspaceDto) => {
+    setSelectedWorkspace(workspace);
     setFormData({
-      name: company.name,
-      description: company.description || '',
-      status: company.status,
-      cnpj: company.cnpj || '',
-      contactEmail: company.contactEmail || '',
-      contactPhone: company.contactPhone || '',
-      address: company.address || '',
+      name: workspace.name,
+      description: workspace.description || '',
+      status: workspace.status,
+      cnpj: workspace.cnpj || '',
+      contactEmail: workspace.contactEmail || '',
+      contactPhone: workspace.contactPhone || '',
+      address: workspace.address || '',
     });
     setIsEditDialogOpen(true);
   };
 
-  const getStatusBadge = (status: CompanyStatus) => {
+  const getStatusBadge = (status: WorkspaceStatus) => {
     const variants = {
       Active: 'default',
       Inactive: 'secondary',
@@ -185,9 +185,9 @@ export const CompanyManagement: React.FC<CompanyManagementProps> = ({ className 
     } as const;
 
     const labels = {
-      Active: 'Ativa',
-      Inactive: 'Inativa',
-      Suspended: 'Suspensa',
+      Active: 'Ativo',
+      Inactive: 'Inativo',
+      Suspended: 'Suspenso',
     };
 
     return (
@@ -219,34 +219,34 @@ export const CompanyManagement: React.FC<CompanyManagementProps> = ({ className 
             <div>
               <CardTitle className="flex items-center space-x-2">
                 <Building2 className="h-5 w-5" />
-                <span>Gerenciar Empresas</span>
+                <span>Gerenciar Workspaces</span>
               </CardTitle>
               <CardDescription>
-                Gerencie suas empresas e configurações
+                Gerencie seus workspaces e configurações
               </CardDescription>
             </div>
             <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
               <DialogTrigger asChild>
                 <Button>
                   <Plus className="h-4 w-4 mr-2" />
-                  Nova Empresa
+                  Novo Workspace
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Criar Nova Empresa</DialogTitle>
+                  <DialogTitle>Criar Novo Workspace</DialogTitle>
                   <DialogDescription>
-                    Preencha os dados para criar uma nova empresa.
+                    Preencha os dados para criar um novo workspace.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="name">Nome da Empresa</Label>
+                    <Label htmlFor="name">Nome do Workspace</Label>
                     <Input
                       id="name"
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      placeholder="Digite o nome da empresa"
+                      placeholder="Digite o nome do workspace"
                     />
                   </div>
                 </div>
@@ -257,8 +257,8 @@ export const CompanyManagement: React.FC<CompanyManagementProps> = ({ className 
                   >
                     Cancelar
                   </Button>
-                  <Button onClick={handleCreateCompany} disabled={isLoading}>
-                    {isLoading ? 'Criando...' : 'Criar Empresa'}
+                  <Button onClick={handleCreateWorkspace} disabled={isLoading}>
+                    {isLoading ? 'Criando...' : 'Criar Workspace'}
                   </Button>
                 </DialogFooter>
               </DialogContent>
@@ -272,46 +272,46 @@ export const CompanyManagement: React.FC<CompanyManagementProps> = ({ className 
                 <TableHead>Nome</TableHead>
                 <TableHead>Descrição</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Criada em</TableHead>
+                <TableHead>Criado em</TableHead>
                 <TableHead>Ações</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {companies.length === 0 ? (
+              {workspaces.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-8 text-muted-foreground">
-                    Nenhuma empresa encontrada. Crie uma nova empresa para começar.
+                    Nenhum workspace encontrado. Crie um novo workspace para começar.
                   </TableCell>
                 </TableRow>
               ) : (
-                companies.map((company) => (
-                  <TableRow key={company.id}>
-                    <TableCell className="font-medium">{company.name}</TableCell>
-                    <TableCell>{company.description || '-'}</TableCell>
-                    <TableCell>{getStatusBadge(company.status)}</TableCell>
+                workspaces.map((workspace) => (
+                  <TableRow key={workspace.id}>
+                    <TableCell className="font-medium">{workspace.name}</TableCell>
+                    <TableCell>{workspace.description || '-'}</TableCell>
+                    <TableCell>{getStatusBadge(workspace.status)}</TableCell>
                     <TableCell>
-                      {new Date(company.createdAt).toLocaleDateString('pt-BR')}
+                      {new Date(workspace.createdAt).toLocaleDateString('pt-BR')}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center space-x-2">
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleViewUsers(company)}
+                          onClick={() => handleViewUsers(workspace)}
                         >
                           <Users className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => openEditDialog(company)}
+                          onClick={() => openEditDialog(workspace)}
                         >
                           <Edit className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handleDeleteCompany(company.id)}
+                          onClick={() => handleDeleteWorkspace(workspace.id)}
                           disabled={isLoading}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -330,14 +330,14 @@ export const CompanyManagement: React.FC<CompanyManagementProps> = ({ className 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Editar Empresa</DialogTitle>
+            <DialogTitle>Editar Workspace</DialogTitle>
             <DialogDescription>
-              Atualize os dados da empresa.
+              Atualize os dados do workspace.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <Label htmlFor="edit-name">Nome da Empresa</Label>
+              <Label htmlFor="edit-name">Nome do Workspace</Label>
               <Input
                 id="edit-name"
                 value={formData.name}
@@ -349,15 +349,15 @@ export const CompanyManagement: React.FC<CompanyManagementProps> = ({ className 
               <Label htmlFor="edit-status">Status</Label>
               <Select
                 value={formData.status}
-                onValueChange={(value) => setFormData({ ...formData, status: value as CompanyStatus })}
+                onValueChange={(value) => setFormData({ ...formData, status: value as WorkspaceStatus })}
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Active">Ativa</SelectItem>
-                  <SelectItem value="Inactive">Inativa</SelectItem>
-                  <SelectItem value="Suspended">Suspensa</SelectItem>
+                  <SelectItem value="Active">Ativo</SelectItem>
+                  <SelectItem value="Inactive">Inativo</SelectItem>
+                  <SelectItem value="Suspended">Suspenso</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -369,7 +369,7 @@ export const CompanyManagement: React.FC<CompanyManagementProps> = ({ className 
             >
               Cancelar
             </Button>
-            <Button onClick={handleUpdateCompany} disabled={isLoading}>
+            <Button onClick={handleUpdateWorkspace} disabled={isLoading}>
               {isLoading ? 'Atualizando...' : 'Atualizar'}
             </Button>
           </DialogFooter>
@@ -380,9 +380,9 @@ export const CompanyManagement: React.FC<CompanyManagementProps> = ({ className 
       <Dialog open={isUsersDialogOpen} onOpenChange={setIsUsersDialogOpen}>
         <DialogContent className="max-w-4xl">
           <DialogHeader>
-            <DialogTitle>Usuários da Empresa: {selectedCompany?.name}</DialogTitle>
+            <DialogTitle>Usuários do Workspace: {selectedWorkspace?.name}</DialogTitle>
             <DialogDescription>
-              Gerencie os usuários desta empresa.
+              Gerencie os usuários deste workspace.
             </DialogDescription>
           </DialogHeader>
           <div className="max-h-96 overflow-y-auto">
@@ -397,18 +397,18 @@ export const CompanyManagement: React.FC<CompanyManagementProps> = ({ className 
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {companyUsers.map((companyUser) => (
-                  <TableRow key={companyUser.id}>
-                    <TableCell>{companyUser.user?.userName || companyUser.userName}</TableCell>
-                    <TableCell>{companyUser.user?.email || companyUser.userEmail}</TableCell>
-                    <TableCell>{getRoleBadge(companyUser.role)}</TableCell>
+                {workspaceUsers.map((workspaceUser) => (
+                  <TableRow key={workspaceUser.id}>
+                    <TableCell>{workspaceUser.user?.userName || workspaceUser.userName}</TableCell>
+                    <TableCell>{workspaceUser.user?.email || workspaceUser.userEmail}</TableCell>
+                    <TableCell>{getRoleBadge(workspaceUser.role)}</TableCell>
                     <TableCell>
-                      <Badge variant={companyUser.status === 'Active' ? 'default' : 'secondary'}>
-                        {companyUser.status === 'Active' ? 'Ativo' : 'Inativo'}
+                      <Badge variant={workspaceUser.status === 'Active' ? 'default' : 'secondary'}>
+                        {workspaceUser.status === 'Active' ? 'Ativo' : 'Inativo'}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {new Date(companyUser.joinedAt).toLocaleDateString('pt-BR')}
+                      {new Date(workspaceUser.joinedAt).toLocaleDateString('pt-BR')}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -426,4 +426,4 @@ export const CompanyManagement: React.FC<CompanyManagementProps> = ({ className 
   );
 };
 
-export default CompanyManagement;
+export default WorkspaceManagement;

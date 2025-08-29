@@ -8,12 +8,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from '@/components/ui/pagination';
 import { accountService, documentsService } from '@/services';
 import { toast } from '@/hooks/use-toast';
-import { File, Search, Download, Eye, Trash2, Loader2, RefreshCw, Brain, ArrowLeft, Filter, FileText, FileImage, FileSpreadsheet, FileVideo, FileAudio, Archive } from 'lucide-react';
+import { File, Search, Download, Eye, Trash2, Loader2, RefreshCw, Brain, ArrowLeft, Filter, FileText, FileImage, FileSpreadsheet, FileVideo, FileAudio, Archive, Building2 } from 'lucide-react';
 import { Document, DocumentDetails } from '@/types/api';
 import { DocumentDetailsView } from '@/components/DocumentDetailsView';
 import { PageBreadcrumb } from '@/components/PageBreadcrumb';
+import { WorkspaceSelector } from '@/components/WorkspaceSelector';
+import { useAuth } from '@/contexts/AuthContext';
 
 const DocumentsPage: React.FC = () => {
+  const { currentWorkspace } = useAuth();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [filteredDocuments, setFilteredDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -28,8 +31,10 @@ const DocumentsPage: React.FC = () => {
   const [analyzingDocuments, setAnalyzingDocuments] = useState<Set<number>>(new Set());
 
   useEffect(() => {
-    loadDocuments();
-  }, []);
+    if (currentWorkspace) {
+      loadDocuments();
+    }
+  }, [currentWorkspace]);
 
   useEffect(() => {
     // Filtrar documentos baseado no termo de busca e status
@@ -48,9 +53,15 @@ const DocumentsPage: React.FC = () => {
   }, [documents, searchTerm, statusFilter]);
 
   const loadDocuments = async () => {
+    if (!currentWorkspace) {
+      setDocuments([]);
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setIsLoading(true);
-      const data = await accountService.getUserDocuments();
+      const data = await documentsService.getWorkspaceDocuments(currentWorkspace.id);
       
       const processedDocuments: Document[] = data.documents.map((doc: any) => ({
         id: doc.id,
@@ -415,12 +426,36 @@ const DocumentsPage: React.FC = () => {
     );
   }
 
+  // Se não há workspace selecionado, mostrar mensagem
+  if (!currentWorkspace) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <PageBreadcrumb />
+          <WorkspaceSelector />
+        </div>
+        <Card className="bg-card border-border">
+          <CardContent className="text-center py-12">
+            <Building2 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium text-foreground mb-2">
+              Nenhum workspace selecionado
+            </h3>
+            <p className="text-muted-foreground">
+              Selecione um workspace para visualizar os documentos compartilhados.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <PageBreadcrumb />
         <div className="flex items-center space-x-4">
+          <WorkspaceSelector />
           <div className="text-right">
             <p className="text-foreground font-medium">
               {filteredDocuments.length} documento{filteredDocuments.length !== 1 ? 's' : ''}

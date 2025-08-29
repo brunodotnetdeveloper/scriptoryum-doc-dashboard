@@ -2,7 +2,7 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Upload, FileText, Bot, Settings, Key, Building2 } from 'lucide-react';
+import { LayoutDashboard, Upload, FileText, Bot, Settings, Key, Building2, Briefcase, Users } from 'lucide-react';
 
 const menuItems = [
   {
@@ -26,9 +26,14 @@ const menuItems = [
     icon: FileText,
   },
   {
-    name: 'Empresas',
-    path: '/companies',
-    icon: Building2,
+    name: 'Usuários',
+    path: '/users',
+    icon: Users,
+  },
+  {
+    name: 'Workspaces',
+    path: '/workspaces',
+    icon: Briefcase,
   },
   {
     name: 'Configurações',

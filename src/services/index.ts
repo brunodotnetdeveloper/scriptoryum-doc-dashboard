@@ -4,5 +4,5 @@ export { accountService } from './account.service';
 export { aiConfigService } from './ai-config.service';
 export { escribaService } from './escriba.service';
 export { notificationsService } from './notifications.service';
-export { companyService } from './companyService';
+export { workspaceService } from './workspaceService';
 export { API_BASE_URL } from './base.service';

@@ -5,9 +5,16 @@ export interface UserInfoDto {
   email?: string;
   emailConfirmed: boolean;
   roles?: string[];
-  companies?: CompanyUserDto[];
-  currentCompanyId?: number;
-  currentCompanyName?: string;
+  workspaces?: WorkspaceUserDto[];
+  currentWorkspaceId?: number;
+  currentWorkspaceName?: string;
+  // Organization properties (now directly in user)
+  organizationId?: number;
+  organizationName?: string;
+  organizationRole?: OrganizationRole;
+  organizationStatus?: OrganizationUserStatus;
+  joinedAt?: string;
+  removedAt?: string;
 }
 
 export interface AuthResponseDto {
@@ -187,12 +194,16 @@ export interface TestApiKeyResponse {
   errors?: string[];
 }
 
-// Company Management Types
-export type CompanyStatus = 'Active' | 'Inactive' | 'Suspended' | 'Cancelled';
-export type CompanyUserRole = 'User' | 'Admin' | 'Owner' | 'Manager';
-export type CompanyUserStatus = 'Active' | 'Inactive' | 'Suspended' | 'Removed' | 'PendingInvitation';
+// Workspace Management Types
+export type WorkspaceStatus = 'Active' | 'Inactive' | 'Suspended' | 'Cancelled';
+export enum WorkspaceUserRole {
+  Viewer = 0,
+  Member = 1,
+  Admin = 2
+}
+export type WorkspaceUserStatus = 'Active' | 'Inactive' | 'Suspended' | 'Removed' | 'PendingInvitation';
 
-export interface CompanyDto {
+export interface WorkspaceDto {
   id: number;
   name: string;
   description?: string;
@@ -200,13 +211,13 @@ export interface CompanyDto {
   contactEmail: string;
   contactPhone?: string;
   address?: string;
-  status: CompanyStatus;
+  status: WorkspaceStatus;
   createdAt: string;
-  users?: CompanyUserDto[];
-  aiProviderConfigs?: CompanyAIProviderConfigDto[];
+  users?: WorkspaceUserDto[];
+  aiProviderConfigs?: WorkspaceAIProviderConfigDto[];
 }
 
-export interface CreateCompanyDto {
+export interface CreateWorkspaceDto {
   name: string;
   status?: string;
   description?: string;
@@ -216,48 +227,48 @@ export interface CreateCompanyDto {
   address?: string;
 }
 
-export interface UpdateCompanyDto {
+export interface UpdateWorkspaceDto {
   name: string;
   cnpj?: string;
   description?: string;
   contactEmail: string;
   contactPhone?: string;
   address?: string;
-  status: CompanyStatus;
+  status: WorkspaceStatus;
 }
 
-export interface CompanyUserDto {
+export interface WorkspaceUserDto {
   user: UserInfoDto;
   id: number;
-  companyId: number;
-  companyName: string;
+  workspaceId: number;
+  workspaceName: string;
   userId: string;
   userName: string;
   userEmail: string;
-  role: CompanyUserRole;
-  status: CompanyUserStatus;
+  role: string;
+  status: WorkspaceUserStatus;
   joinedAt: string;
   removedAt?: string;
 }
 
-export interface AddUserToCompanyDto {
-  companyId: number;
+export interface AddUserToWorkspaceDto {
+  workspaceId: number;
   userEmail: string;
-  role: CompanyUserRole;
+  role: string;
 }
 
-export interface UpdateCompanyUserDto {
-  role: CompanyUserRole;
-  status: CompanyUserStatus;
+export interface UpdateWorkspaceUserDto {
+  role: string;
+  status: WorkspaceUserStatus;
 }
 
-export interface UserCompaniesDto {
-  companies: CompanyUserDto[];
+export interface UserWorkspacesDto {
+  workspaces: WorkspaceUserDto[];
 }
 
-export interface CompanyAIProviderConfigDto {
+export interface WorkspaceAIProviderConfigDto {
   id: number;
-  companyId: number;
+  workspaceId: number;
   provider: AIProvider;
   selectedModel: string;
   isEnabled: boolean;
@@ -269,21 +280,79 @@ export interface CompanyAIProviderConfigDto {
   tokenCounterResetAt?: string;
 }
 
-export interface CreateCompanyAIProviderConfigDto {
-  companyId: number;
+export interface CreateWorkspaceAIProviderConfigDto {
+  workspaceId: number;
   provider: AIProvider;
   selectedModel: string;
   isEnabled: boolean;
   monthlyTokenLimit?: number;
 }
 
-export interface UpdateCompanyAIProviderConfigDto {
+export interface UpdateWorkspaceAIProviderConfigDto {
   selectedModel: string;
   isEnabled: boolean;
   monthlyTokenLimit?: number;
 }
 
-export interface TestCompanyAIProviderConfigDto {
-  companyId: number;
+export interface TestWorkspaceAIProviderConfigDto {
+  workspaceId: number;
   provider: AIProvider;
+}
+
+// Organization Management Types
+export type OrganizationStatus = 'Active' | 'Inactive' | 'Suspended' | 'Cancelled';
+export type OrganizationRole = 'Owner' | 'Admin' | 'Member';
+export type OrganizationUserStatus = 'Active' | 'Inactive' | 'Pending' | 'Removed';
+
+export interface OrganizationDto {
+  id: number;
+  name: string;
+  description?: string;
+  contactEmail: string;
+  contactPhone?: string;
+  address?: string;
+  status: OrganizationStatus;
+  createdAt: string;
+  users?: OrganizationUserDto[];
+  workspaces?: WorkspaceDto[];
+}
+
+export interface OrganizationUserDto {  
+  id: number;
+  organizationId: number;
+  organizationName: string;
+  userId: string;
+  userName: string;
+  userEmail: string;
+  role: OrganizationRole;
+  status: OrganizationUserStatus;
+  joinedAt: string;
+  removedAt?: string;
+}
+
+export interface CreateOrganizationDto {
+  name: string;
+  description?: string;
+  contactEmail: string;
+  contactPhone?: string;
+  address?: string;
+}
+
+export interface UpdateOrganizationDto {
+  name: string;
+  description?: string;
+  contactEmail: string;
+  contactPhone?: string;
+  address?: string;
+  status?: OrganizationStatus;
+}
+
+export interface AddUserToOrganizationDto {
+  userEmail: string;
+  role: OrganizationRole;
+}
+
+export interface UpdateOrganizationUserDto {
+  role: OrganizationRole;
+  status: OrganizationUserStatus;
 }
