@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious, PaginationEllipsis } from '@/components/ui/pagination';
 import { accountService, documentsService } from '@/services';
 import { toast } from '@/hooks/use-toast';
-import { File, Search, Download, Eye, Trash2, Loader2, RefreshCw, Brain, ArrowLeft, Filter, FileText, FileImage, FileSpreadsheet, FileVideo, FileAudio, Archive, Building2 } from 'lucide-react';
+import { File, Search, Download, Eye, Trash2, Loader2, RefreshCw, Brain, ArrowLeft, Filter, FileText, FileImage, FileSpreadsheet, FileVideo, FileAudio, Archive, Building2, Settings } from 'lucide-react';
 import { Document, DocumentDetails } from '@/types/api';
 import { DocumentDetailsView } from '@/components/DocumentDetailsView';
 import { PageBreadcrumb } from '@/components/PageBreadcrumb';
@@ -624,6 +624,16 @@ const DocumentsPage: React.FC = () => {
                       disabled={document.status !== 'Processed' && document.status !== 'Analyzed'}
                     >
                       <Download className="h-4 w-4" />
+                    </Button>
+                    
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => window.open(`/documents/${document.id}/association`, '_blank')}
+                      className="text-muted-foreground hover:text-orange-600 hover:bg-orange-600/10"
+                      title="Gerenciar Tipo"
+                    >
+                      <Settings className="h-4 w-4" />
                     </Button>
                     
                     <Button

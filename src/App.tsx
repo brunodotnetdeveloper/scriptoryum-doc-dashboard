@@ -16,6 +16,8 @@ import { SettingsPage } from "@/pages/SettingsPage";
 import ServiceApiKeysPage from "@/pages/ServiceApiKeysPage";
 import WorkspacesPage from "@/pages/WorkspacesPage";
 import UserManagementPage from "@/pages/UserManagementPage";
+import DocumentTypesPage from "@/pages/DocumentTypesPage";
+import DocumentAssociationPage from "@/pages/DocumentAssociationPage";
 import NotFound from "./pages/NotFound";
 import { FloatingChatWidget } from "@/components/FloatingChatWidget";
 import { CreateWorkspaceModal } from "@/components/CreateWorkspaceModal";
@@ -184,6 +186,22 @@ const AppRoutes = () => {
         element={
           <ProtectedRoute>
             <UserManagementPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/document-types" 
+        element={
+          <ProtectedRoute>
+            <DocumentTypesPage />
+          </ProtectedRoute>
+        } 
+      />
+      <Route 
+        path="/documents/:documentId/association" 
+        element={
+          <ProtectedRoute>
+            <DocumentAssociationPage />
           </ProtectedRoute>
         } 
       />

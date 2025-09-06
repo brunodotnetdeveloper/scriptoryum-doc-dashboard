@@ -1,5 +1,6 @@
 export { authService } from './auth.service';
 export { documentsService } from './documents.service';
+export { documentTypeService } from './documentType.service';
 export { accountService } from './account.service';
 export { aiConfigService } from './ai-config.service';
 export { escribaService } from './escriba.service';

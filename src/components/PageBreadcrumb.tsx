@@ -18,6 +18,7 @@ import {
   Building2,
   Briefcase,
   Users,
+  FileType,
   LucideIcon,
 } from 'lucide-react';
 
@@ -67,6 +68,11 @@ const pageConfigs: Record<string, PageConfig> = {
     title: 'Usuários',
     icon: Users,
     description: 'Gerencie usuários do workspace atual',
+  },
+  '/document-types': {
+    title: 'Tipos de Documentos',
+    icon: FileType,
+    description: 'Configure tipos de documentos e campos dinâmicos',
   },
 };
 

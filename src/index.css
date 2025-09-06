@@ -121,6 +121,10 @@
     @apply border-border;
   }
 
+  html {
+    overflow-y: hidden;
+  }
+
   body {
     @apply bg-background text-foreground;
   }

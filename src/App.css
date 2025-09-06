@@ -9,7 +9,7 @@
 
 /* Smooth scrolling para toda a aplicação */
 html {
-  scroll-behavior: smooth;
+  scroll-behavior: smooth;  
 }
 
 /* Melhorias de acessibilidade */

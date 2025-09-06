@@ -1,4 +1,4 @@
-import { UploadDocumentResponseDto } from '@/types/api';
+import { UploadDocumentResponseDto, Document, DocumentDetails, AssociateDocumentTypeDto, DocumentTypeOperationResponseDto, DocumentFieldValueDto, ValidateFieldValueDto, ValidationResult } from '@/types/api';
 import { API_BASE_URL, BaseService } from './base.service';
 
 // URL da API de análise de documentos
@@ -29,6 +29,11 @@ class DocumentsService extends BaseService {
         });
         const data = await this.handleResponse<any>(response);
         return data.url;
+    }
+
+    // Alias method for compatibility
+    async getDownloadUrl(id: number): Promise<string> {
+        return this.getDocumentDownloadUrl(id);
     }
 
     async uploadDocument(file: File, description?: string, workspaceId?: number): Promise<UploadDocumentResponseDto> {
@@ -109,6 +114,114 @@ class DocumentsService extends BaseService {
         });
 
         return this.handleResponse<any>(response);
+    }
+
+    async getDocuments(page: number = 1, pageSize: number = 10, searchTerm?: string, workspaceId?: number): Promise<{
+        documents: Document[];
+        totalCount: number;
+        currentPage: number;
+        totalPages: number;
+    }> {
+        const params = new URLSearchParams({
+            page: page.toString(),
+            pageSize: pageSize.toString(),
+        });
+
+        if (searchTerm) {
+            params.append('searchTerm', searchTerm);
+        }
+
+        if (workspaceId) {
+            params.append('workspaceId', workspaceId.toString());
+        }
+
+        const token = localStorage.getItem('authToken');
+        const response = await fetch(`${API_BASE_URL}/api/account/documents?${params.toString()}`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                ...(token && { 'Authorization': `Bearer ${token}` }),
+            },
+        });
+
+        return this.handleResponse<{
+            documents: Document[];
+            totalCount: number;
+            currentPage: number;
+            totalPages: number;
+        }>(response);
+    }
+
+    // Document Type Association Methods
+    async associateDocumentType(documentId: number, dto: AssociateDocumentTypeDto): Promise<DocumentTypeOperationResponseDto> {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch(`${API_BASE_URL}/api/documents/${documentId}/associate-type`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                ...(token && { 'Authorization': `Bearer ${token}` }),
+            },
+            body: JSON.stringify(dto),
+        });
+
+        return this.handleResponse<DocumentTypeOperationResponseDto>(response);
+    }
+
+    async dissociateDocumentType(documentId: number): Promise<DocumentTypeOperationResponseDto> {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch(`${API_BASE_URL}/api/documents/${documentId}/dissociate-type`, {
+            method: 'DELETE',
+            headers: {
+                'Accept': 'application/json',
+                ...(token && { 'Authorization': `Bearer ${token}` }),
+            },
+        });
+
+        return this.handleResponse<DocumentTypeOperationResponseDto>(response);
+    }
+
+    async extractDocumentFields(documentId: number): Promise<DocumentTypeOperationResponseDto> {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch(`${API_BASE_URL}/api/documents/${documentId}/extract-fields`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                ...(token && { 'Authorization': `Bearer ${token}` }),
+            },
+            body: JSON.stringify({}),
+        });
+
+        return this.handleResponse<DocumentTypeOperationResponseDto>(response);
+    }
+
+    async getDocumentFieldValues(documentId: number): Promise<DocumentFieldValueDto[]> {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch(`${API_BASE_URL}/api/documents/${documentId}/field-values`, {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                ...(token && { 'Authorization': `Bearer ${token}` }),
+            },
+        });
+
+        return this.handleResponse<DocumentFieldValueDto[]>(response);
+    }
+
+    async validateDocumentField(documentId: number, dto: ValidateFieldValueDto): Promise<ValidationResult> {
+        const token = localStorage.getItem('authToken');
+        const response = await fetch(`${API_BASE_URL}/api/documents/${documentId}/validate-field`, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json',
+                ...(token && { 'Authorization': `Bearer ${token}` }),
+            },
+            body: JSON.stringify(dto),
+        });
+
+        return this.handleResponse<ValidationResult>(response);
     }
 }
 

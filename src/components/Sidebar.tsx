@@ -2,7 +2,7 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { LayoutDashboard, Upload, FileText, Bot, Settings, Key, Building2, Briefcase, Users } from 'lucide-react';
+import { LayoutDashboard, Upload, FileText, Bot, Settings, Key, Building2, Briefcase, Users, FileType } from 'lucide-react';
 
 const menuItems = [
   {
@@ -24,6 +24,11 @@ const menuItems = [
     name: 'Documentos',
     path: '/documents',
     icon: FileText,
+  },
+  {
+    name: 'Tipos de Documentos',
+    path: '/document-types',
+    icon: FileType,
   },
   {
     name: 'Usuários',

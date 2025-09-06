@@ -78,6 +78,7 @@ export interface Document {
   id: number;
   originalFileName: string;
   description: string | null;
+  summary: string | null;
   fileType: string;
   fileName: string;
   storagePath: string;
@@ -85,6 +86,7 @@ export interface Document {
   status: DocumentStatus;
   uploadedAt: string;
   uploadedByUserId: string;
+  documentTypeId?: number;
 }
 
 export interface UserDocumentsResponse {
@@ -355,4 +357,224 @@ export interface AddUserToOrganizationDto {
 export interface UpdateOrganizationUserDto {
   role: OrganizationRole;
   status: OrganizationUserStatus;
+}
+
+// Document Type Management DTOs
+export type DocumentFieldType = 
+  | 'TEXT' 
+  | 'NUMBER' 
+  | 'DATE' 
+  | 'BOOLEAN' 
+  | 'EMAIL' 
+  | 'URL' 
+  | 'PHONE' 
+  | 'CNPJ' 
+  | 'CPF' 
+  | 'CURRENCY' 
+  | 'PERCENTAGE' 
+  | 'TEXTAREA' 
+  | 'SELECT' 
+  | 'MULTISELECT';
+
+export type ValidationStatus = 'Pending' | 'Valid' | 'Invalid';
+
+export interface DocumentTypeDto {
+  id: number;
+  name: string;
+  description?: string;
+  organizationId: number;
+  organizationName?: string;
+  isSystemDefault?: boolean;
+  status: string; // 'Active' | 'Inactive'
+  createdAt: string;
+  updatedAt: string;
+  fields: DocumentTypeFieldDto[];
+  documentCount?: number;
+  // Computed properties for backward compatibility
+  isActive?: boolean;
+  documentsCount?: number;
+}
+
+// Utility function to map API response to frontend format
+export function mapDocumentTypeFromApi(apiData: any): DocumentTypeDto {
+  return {
+    ...apiData,
+    isActive: apiData.status === 'Active',
+    documentsCount: apiData.documentCount,
+    fields: apiData.fields?.map((field: any) => ({
+      id: field.id,
+      documentTypeId: field.documentTypeId,
+      fieldName: field.fieldName,
+      fieldType: field.fieldType,
+      isRequired: field.isRequired,
+      displayOrder: field.fieldOrder, // API usa fieldOrder, frontend espera displayOrder
+      validationRegex: field.validationRegex,
+      validationMessage: field.validationMessage,
+      defaultValue: field.defaultValue,
+      selectOptions: field.selectOptions,
+      helpText: field.helpText,
+      isActive: field.status === 'Active', // API usa status, frontend espera isActive
+      createdAt: field.createdAt,
+      updatedAt: field.updatedAt
+    })) || []
+  };
+}
+
+export interface CreateDocumentTypeDto {
+  name: string;
+  description?: string;
+  isActive?: boolean;
+  fields?: CreateDocumentTypeFieldDto[];
+}
+
+export interface UpdateDocumentTypeDto {
+  name: string;
+  description?: string;
+  isActive: boolean;
+}
+
+export interface DocumentTypeFieldDto {
+  id: number;
+  documentTypeId: number;
+  fieldName: string;
+  fieldType: DocumentFieldType;
+  isRequired: boolean;
+  displayOrder: number;
+  validationRegex?: string;
+  validationMessage?: string;
+  defaultValue?: string;
+  selectOptions?: string[];
+  helpText?: string;
+  isActive: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateDocumentTypeFieldDto {
+  fieldName: string;
+  fieldType: DocumentFieldType;
+  isRequired?: boolean;
+  displayOrder?: number;
+  validationRegex?: string;
+  validationMessage?: string;
+  defaultValue?: string;
+  selectOptions?: string[];
+  helpText?: string;
+  isActive?: boolean;
+}
+
+export interface UpdateDocumentTypeFieldDto {
+  fieldName: string;
+  fieldType: DocumentFieldType;
+  isRequired: boolean;
+  displayOrder: number;
+  validationRegex?: string;
+  validationMessage?: string;
+  defaultValue?: string;
+  selectOptions?: string[];
+  helpText?: string;
+  isActive: boolean;
+}
+
+export interface DocumentTypeTemplateDto {
+  id: number;
+  name: string;
+  description?: string;
+  category?: string;
+  isPublic: boolean;
+  organizationId?: number;
+  createdAt: string;
+  updatedAt: string;
+  createdByUserId: string;
+  templateData: DocumentTypeTemplateDataDto;
+  usageCount?: number;
+}
+
+export interface DocumentTypeTemplateDataDto {
+  name: string;
+  description?: string;
+  category?: string;
+  fields: DocumentTypeFieldTemplateDto[];
+}
+
+export interface DocumentTypeFieldTemplateDto {
+  fieldName: string;
+  fieldType: DocumentFieldType;
+  isRequired: boolean;
+  displayOrder: number;
+  validationRegex?: string;
+  validationMessage?: string;
+  defaultValue?: string;
+  selectOptions?: string[];
+  helpText?: string;
+}
+
+export interface CreateDocumentTypeTemplateDto {
+  name: string;
+  description?: string;
+  category?: string;
+  isPublic?: boolean;
+  templateData: DocumentTypeTemplateDataDto;
+}
+
+export interface ApplyTemplateDto {
+  templateId: number;
+  documentTypeName: string;
+  documentTypeDescription?: string;
+  customizeFields?: boolean;
+  fieldCustomizations?: { [fieldName: string]: Partial<CreateDocumentTypeFieldDto> };
+}
+
+export interface AssociateDocumentTypeDto {
+  documentId: number;
+  documentTypeId: number;
+}
+
+export interface DocumentFieldValueDto {
+  id: number;
+  documentId: number;
+  documentTypeFieldId: number;
+  fieldName: string;
+  fieldType: DocumentFieldType;
+  extractedValue?: string;
+  correctedValue?: string;
+  finalValue?: string;
+  confidenceScore?: number;
+  validationStatus: ValidationStatus;
+  validationMessage?: string;
+  extractedAt?: string;
+  correctedAt?: string;
+  correctedByUserId?: string;
+  extractionMetadata?: any;
+}
+
+export interface ValidateFieldValueDto {
+  documentId: number;
+  fieldName: string;
+  value: string;
+}
+
+export interface DocumentTypeOperationResponseDto {
+  success: boolean;
+  message?: string;
+  data?: any;
+  errors?: string[];
+}
+
+export interface ValidationResult {
+  isValid: boolean;
+  message?: string;
+  suggestedValue?: string;
+}
+
+export interface DocumentFieldValueHistoryDto {
+  id: number;
+  documentFieldValueId: number;
+  oldValue?: string;
+  newValue?: string;
+  changeType: string;
+  changedAt: string;
+  changedByUserId?: string;
+  changeReason?: string;
+  metadata?: any;
 }
